@@ -5,7 +5,7 @@
 ANDROID_TARGET_API=28
 ANDROID_TARGET_ABI=armeabi-v7a
 GCC_VERSION=4.9
-OUTPUT_PATH=$HOME/work/SSL/Android/openssl-android/armeabi-v7a
+OUTPUT_PATH=xxxx
 
 rm -rf ${OUTPUT_PATH}
 
