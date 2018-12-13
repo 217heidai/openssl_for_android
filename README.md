@@ -9,8 +9,8 @@ change OpenSSL path in openssl_build.sh "OPENSSL_SOURCES_PATH=xxxx"
 change Android NDK path in openssl_build.sh "ANDROID_NDK_PATH=xxxx"
 # Android API
 change Android API in openssl_build_xxxx.sh "ANDROID_TARGET_API=xx"
-# Android ABI
-change Android ABI in openssl_build_xxxx.sh "ANDROID_TARGET_ABI=xx"
+# Output
+change output path in openssl_build_xxxx.sh "OUTPUT_PATH=xxxx"
 
 
 
