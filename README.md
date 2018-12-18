@@ -2,9 +2,22 @@
 static OpenSSL library for android
 ## Android
 suport android armeabi、armeabi-v7a、arm64-v8a、x86、x86_64
+| Android | Suport |
+| --- | --- |
+| armeabi | √ |
+| armeabi-v7a | √ |
+| arm64-v8a | √ |
+| x86 | √ |
+| x86_64 | √ |
+| mips | × |
+| mips64 | × |
 ## OpenSSL
-suport OpenSSL 1.0.2*<br>
-[download](https://www.openssl.org/source/)
+[Download](https://www.openssl.org/source/)
+| OpenSSL | Suport |
+| --- | --- |
+| 1.0.2* | √ |
+| 1.1.0* | × |
+| 1.1.1* | × |
 ## How to compile
 ### Android NDK
 change Android NDK path in openssl_build.sh "ANDROID_NDK_PATH=xxxx"
