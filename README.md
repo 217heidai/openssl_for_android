@@ -11,7 +11,7 @@ static OpenSSL library for android
 | mips | × |
 | mips64 | × |
 ## OpenSSL
-[Download](https://www.openssl.org/source/)
+[Download](https://www.openssl.org/source/)<br>
 | OpenSSL | Suport |
 | --- | --- |
 | 1.0.2* | √ |
