@@ -16,6 +16,7 @@ static OpenSSL library for android
 | 1.0.2* | √ |
 | 1.1.0* | × |
 | 1.1.1* | × |
+
 [Download](https://www.openssl.org/source/)
 ## How to compile
 ### Android NDK
