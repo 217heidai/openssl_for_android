@@ -21,7 +21,7 @@ How to compile static OpenSSL library for android by Linux
 
 ## How to compile
 1. Download [OpenSSL 1.1.1*](https://www.openssl.org/source/)、[Android NDK r14b](https://developer.android.google.cn/ndk/downloads/index.html)  
-important only support Android NDK r14b  
+**only support Android NDK r14b**  
 
 2. Android NDK path  
 Set Android NDK path in openssl_build.sh "ANDROID_NDK_PATH=xxxx"
