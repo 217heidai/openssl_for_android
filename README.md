@@ -1,8 +1,9 @@
 # OpenSSL for Android
 static OpenSSL library for android
+
 ## Android
 | Android | Suport |
-| --- | --- |
+| :-: | :-: |
 | armeabi | √ |
 | armeabi-v7a | √ |
 | arm64-v8a | √ |
@@ -10,23 +11,27 @@ static OpenSSL library for android
 | x86_64 | √ |
 | mips | × |
 | mips64 | × |
+
 ## OpenSSL
 | OpenSSL | Suport |
-| --- | --- |
-| 1.0.2* | √ |
+| :-: | :-: |
+| 1.0.2* | × |
 | 1.1.0* | × |
-| 1.1.1* | × |
+| 1.1.1* | √ |
 
-[Download](https://www.openssl.org/source/)
 ## How to compile
-### Android NDK
-change Android NDK path in openssl_build.sh "ANDROID_NDK_PATH=xxxx"
-### Android API
-change Android API in openssl_build_xxxx.sh "ANDROID_TARGET_API=xx"
-### OpenSSl Path
-change OpenSSL path in openssl_build.sh "OPENSSL_SOURCES_PATH=xxxx"
-### Output
-change output path in openssl_build_xxxx.sh "OUTPUT_PATH=xxxx"
+1. Download [OpenSSL 1.1.1*](https://www.openssl.org/source/)、[Android NDK r14b](https://developer.android.google.cn/ndk/downloads/index.html)
 
+2. Android NDK path
+Set Android NDK path in openssl_build.sh "ANDROID_NDK_PATH=xxxx"
 
+3. OpenSSl Path
+Set OpenSSL path in openssl_build.sh "OPENSSL_SOURCES_PATH=xxxx"
 
+4. output Path
+Set output path in openssl_build.sh "OUTPUT_PATH=xxxx"
+
+5. compile all
+```bash
+sh openssl_build_all.sh
+```

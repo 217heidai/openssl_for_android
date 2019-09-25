@@ -2,7 +2,7 @@
 
 
 ANDROID_TARGET_API=21
-ANDROID_TARGET_ABI=armeabi-v7a
+ANDROID_TARGET_ABI=mips64
 GCC_VERSION=4.9
 
 rm -rf ${OUTPUT_PATH}
@@ -14,4 +14,6 @@ rm -rf ${OUTPUT_PATH}/share
 rm -rf ${OUTPUT_PATH}/ssl
 rm -rf ${OUTPUT_PATH}/lib/engines*
 rm -rf ${OUTPUT_PATH}/lib/pkgconfig
+
+
 
