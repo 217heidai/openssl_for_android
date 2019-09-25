@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 ANDROID_NDK_PATH=$HOME/Android/android-ndk-r14b
-OPENSSL_SOURCES_PATH=$HOME/work/SSL/openssl-1.1.1d
+OPENSSL_SOURCES_PATH=$HOME/SSL/openssl-1.1.1d
 ANDROID_TARGET_API=$1
 ANDROID_TARGET_ABI=$2
 OUTPUT_PATH=$HOME/SSL/${ANDROID_TARGET_ABI}
@@ -12,9 +12,15 @@ mkdir -p "$OPENSSL_TMP_FOLDER"
 cp -r ${OPENSSL_SOURCES_PATH}/* ${OPENSSL_TMP_FOLDER}
 
 function build_library {
+    rm -rf ${OUTPUT_PATH}
     mkdir -p ${OUTPUT_PATH}
     make && make install
     rm -rf ${OPENSSL_TMP_FOLDER}
+    rm -rf ${OUTPUT_PATH}/bin
+    rm -rf ${OUTPUT_PATH}/share
+    rm -rf ${OUTPUT_PATH}/ssl
+    rm -rf ${OUTPUT_PATH}/lib/engines*
+    rm -rf ${OUTPUT_PATH}/lib/pkgconfig
     echo "Build completed! Check output libraries in ${OUTPUT_PATH}"
 }
 
