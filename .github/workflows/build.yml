@@ -16,7 +16,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  Build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -26,21 +26,38 @@ jobs:
       - uses: actions/checkout@v2
 
       # Runs a single command using the runners shell
-      - name: install aria2
+      - name: Install aria2
         run: |
           sudo apt -yqq update
           sudo apt install -yqq aria2
       
-      - name: Get Android NDK
+      - name: Download Android NDK
+        id: download_ndk
         run: |
           aria2c https://dl.google.com/android/repository/android-ndk-r14b-linux-x86_64.zip?hl=zh_cn
           unzip android-ndk-r14b-linux-x86_64.zip
+          echo "::set-output name=status::success"
 
-      - name: Get OpenSSL
+      - name: Download OpenSSL
+        id: download_openssl
         run: |
           aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_1_1_1i
           unzip openssl-OpenSSL_1_1_1i.zip
+          echo "::set-output name=status::success"
 
       # Runs a set of commands using the runners shell
-      - name: build openssl
-        run: bash ./openssl_build_all.sh
+      - name: Compile openssl for Android
+        id: compile
+        if: steps.download_ndk.outputs.status == 'success' && steps.download_openssl.outputs.status == 'success'
+        run: |
+          rm -rf build
+          mkdir build
+          bash ./openssl_build_armeabi.sh
+          echo "::set-output name=status::success"
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: lib
+          path: build/*.zip
+      
