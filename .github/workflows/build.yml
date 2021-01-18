@@ -28,7 +28,7 @@ jobs:
       # Runs a single command using the runners shell
       - name: install aria2
         run: |
-          sudo apt-get -yqq update && sudo apt-get -yqq upgrade
+          sudo apt -yqq update && sudo apt -yqq upgrade
           sudo apt install -yqq aria2
       
       - name: Get Android NDK
