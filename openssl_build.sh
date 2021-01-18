@@ -6,7 +6,6 @@ OPENSSL_SOURCES_PATH=${WORK_PATH}/openssl-OpenSSL_1_1_1i
 ANDROID_TARGET_API=$1
 ANDROID_TARGET_ABI=$2
 OUTPUT_PATH=${WORK_PATH}/openssl_${ANDROID_TARGET_ABI}_1.1.1i
-LIB_PATH=${WORK_PATH}/build/
 
 OPENSSL_TMP_FOLDER="/tmp/openssl"
 rm -rf ${OPENSSL_TMP_FOLDER}
@@ -23,8 +22,6 @@ function build_library {
     rm -rf ${OUTPUT_PATH}/ssl
     rm -rf ${OUTPUT_PATH}/lib/engines*
     rm -rf ${OUTPUT_PATH}/lib/pkgconfig
-    zip -q -r ${OUTPUT_PATH}.zip ${OUTPUT_PATH}
-    mv ${OUTPUT_PATH}.zip ${LIB_PATH}/
     echo "Build completed! Check output libraries in ${OUTPUT_PATH}"
 }
 

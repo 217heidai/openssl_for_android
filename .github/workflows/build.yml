@@ -56,8 +56,8 @@ jobs:
           echo "::set-output name=status::success"
 
       - name: upload artifacts
+        if: steps.compile.outputs.status == 'success'
         uses: actions/upload-artifact@v2
         with:
-          name: lib
-          path: build/*.zip
-      
+          name: OpenSSL_armeabi_1.1.1i
+          path: /home/runner/work/openssl_for_android/openssl_for_android/openssl_armeabi_1.1.1i
