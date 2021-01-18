@@ -1,10 +1,11 @@
 #!/bin/bash -e
 
-ANDROID_NDK_PATH=./android-ndk-r14b
-OPENSSL_SOURCES_PATH=./openssl-OpenSSL_1_1_1i
+WORK_PATH=/home/runner/work/openssl_for_android
+ANDROID_NDK_PATH=${WORK_PATH}/android-ndk-r14b
+OPENSSL_SOURCES_PATH=${WORK_PATH}/openssl-OpenSSL_1_1_1i
 ANDROID_TARGET_API=$1
 ANDROID_TARGET_ABI=$2
-OUTPUT_PATH=/home/runner/work/openssl_for_android/${ANDROID_TARGET_ABI}
+OUTPUT_PATH=${WORK_PATH}/${ANDROID_TARGET_ABI}
 
 OPENSSL_TMP_FOLDER="/tmp/openssl"
 rm -rf "$OPENSSL_TMP_FOLDER"
