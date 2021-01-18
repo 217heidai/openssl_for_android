@@ -26,9 +26,13 @@ jobs:
       - uses: actions/checkout@v2
 
       # Runs a single command using the runners shell
+      - name: install aria2
+        run: |
+          sudo apt-get -yqq update && sudo apt-get -yqq upgrade
+          sudo apt install -yqq aria2
+      
       - name: Get Android NDK
         run: |
-          apt install -y aria2
           aria2c https://dl.google.com/android/repository/android-ndk-r14b-linux-x86_64.zip?hl=zh_cn
           unzip android-ndk-r14b-linux-x86_64.zip
 
