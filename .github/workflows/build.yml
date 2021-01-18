@@ -43,4 +43,4 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: build openssl
-        run: sh ./openssl_build_all.sh
+        run: bash ./openssl_build_all.sh

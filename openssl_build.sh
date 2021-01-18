@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-WORK_PATH=/home/runner/work/openssl_for_android
+WORK_PATH=/home/runner/work/openssl_for_android/openssl_for_android
 ANDROID_NDK_PATH=${WORK_PATH}/android-ndk-r14b
 OPENSSL_SOURCES_PATH=${WORK_PATH}/openssl-OpenSSL_1_1_1i
 ANDROID_TARGET_API=$1
