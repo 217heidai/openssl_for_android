@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Compile OpenSSL for Android x86_64
+name: Compile x86_64
 
 # Controls when the action will run. 
 on:
@@ -36,8 +36,8 @@ jobs:
       - name: Download Android NDK
         id: download_ndk
         run: |
-          aria2c https://dl.google.com/android/repository/android-ndk-r14b-linux-x86_64_64.zip?hl=zh_cn
-          unzip android-ndk-r14b-linux-x86_64_64.zip
+          aria2c https://dl.google.com/android/repository/android-ndk-r14b-linux-x86_64.zip?hl=zh_cn
+          unzip android-ndk-r14b-linux-x86_64.zip
           echo "::set-output name=status::success"
 
       - name: Download OpenSSL

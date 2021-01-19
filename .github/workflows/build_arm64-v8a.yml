@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Compile OpenSSL for Android arm64-v8a
+name: Compile arm64-v8a
 
 # Controls when the action will run. 
 on:

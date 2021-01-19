@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Compile OpenSSL for Android armeabi-v7a
+name: Compile armeabi-v7a
 
 # Controls when the action will run. 
 on:
