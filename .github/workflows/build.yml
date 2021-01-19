@@ -354,14 +354,11 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Generate release tag
-      id: tag
-      run: echo "::set-output name=release_tag::${{env.VERSION}}"
-      
       - name: Upload firmware to release
       uses: softprops/action-gh-release@v1
-      env:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      if: startsWith(github.ref, 'refs/tags/')
       with:
         tag_name: ${{steps.tag.outputs.release_tag}}
         files: /home/runner/work/openssl_for_android/openssl_for_android/*
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
