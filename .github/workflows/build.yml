@@ -43,8 +43,8 @@ jobs:
       - name: Download OpenSSL
         id: download_openssl
         run: |
-          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_${env.OPENSSL_VERSION}
-          unzip openssl-OpenSSL_${env.OPENSSL_VERSION}.zip
+          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_${{env.OPENSSL_VERSION}}
+          unzip openssl-OpenSSL_${{env.OPENSSL_VERSION}}.zip
           echo "::set-output name=status::success"
 
       - name: Compile
@@ -90,8 +90,8 @@ jobs:
       - name: Download OpenSSL
         id: download_openssl
         run: |
-          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_${env.OPENSSL_VERSION}
-          unzip openssl-OpenSSL_${env.OPENSSL_VERSION}.zip
+          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_${{env.OPENSSL_VERSION}}
+          unzip openssl-OpenSSL_${{env.OPENSSL_VERSION}}.zip
           echo "::set-output name=status::success"
 
       - name: Compile
@@ -137,8 +137,8 @@ jobs:
       - name: Download OpenSSL
         id: download_openssl
         run: |
-          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_${env.OPENSSL_VERSION}
-          unzip openssl-OpenSSL_${env.OPENSSL_VERSION}.zip
+          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_${{env.OPENSSL_VERSION}}
+          unzip openssl-OpenSSL_${{env.OPENSSL_VERSION}}.zip
           echo "::set-output name=status::success"
 
       - name: Compile
@@ -183,8 +183,8 @@ jobs:
       - name: Download OpenSSL
         id: download_openssl
         run: |
-          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_${env.OPENSSL_VERSION}
-          unzip openssl-OpenSSL_${env.OPENSSL_VERSION}.zip
+          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_${{env.OPENSSL_VERSION}}
+          unzip openssl-OpenSSL_${{env.OPENSSL_VERSION}}.zip
           echo "::set-output name=status::success"
 
       - name: Compile
@@ -230,8 +230,8 @@ jobs:
       - name: Download OpenSSL
         id: download_openssl
         run: |
-          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_${env.OPENSSL_VERSION}
-          unzip openssl-OpenSSL_${env.OPENSSL_VERSION}.zip
+          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_${{env.OPENSSL_VERSION}}
+          unzip openssl-OpenSSL_${{env.OPENSSL_VERSION}}.zip
           echo "::set-output name=status::success"
 
       - name: Compile
@@ -277,8 +277,8 @@ jobs:
       - name: Download OpenSSL
         id: download_openssl
         run: |
-          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_${env.OPENSSL_VERSION}
-          unzip openssl-OpenSSL_${env.OPENSSL_VERSION}.zip
+          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_${{env.OPENSSL_VERSION}}
+          unzip openssl-OpenSSL_${{env.OPENSSL_VERSION}}.zip
           echo "::set-output name=status::success"
 
       - name: Compile
@@ -324,8 +324,8 @@ jobs:
       - name: Download OpenSSL
         id: download_openssl
         run: |
-          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_${env.OPENSSL_VERSION}
-          unzip openssl-OpenSSL_${env.OPENSSL_VERSION}.zip
+          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_${{env.OPENSSL_VERSION}}
+          unzip openssl-OpenSSL_${{env.OPENSSL_VERSION}}.zip
           echo "::set-output name=status::success"
 
       - name: Compile
