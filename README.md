@@ -12,13 +12,6 @@ How to compile static OpenSSL library for android by Linux
 | mips | √ |
 | mips64 | √ |
 
-## OpenSSL
-| OpenSSL | Suport |
-| :-: | :-: |
-| 1.0.2* | × |
-| 1.1.0* | × |
-| 1.1.1* | √ |
-
 ## How to compile
 1. Download [OpenSSL 1.1.1*](https://www.openssl.org/source/)、[Android NDK r14b](https://developer.android.google.cn/ndk/downloads/index.html)  
 **only support Android NDK r14b**  
