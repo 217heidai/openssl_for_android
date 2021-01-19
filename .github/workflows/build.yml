@@ -7,8 +7,6 @@ on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -16,7 +14,8 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  Build:
+  Prepare_for_Compilation:
+    name: Prepare for Compilation
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -45,8 +44,17 @@ jobs:
           unzip openssl-OpenSSL_1_1_1i.zip
           echo "::set-output name=status::success"
 
+  # This workflow contains a single job called "build"
+  Compile_OpenSSL_for_Android_armeabi:
+    name: Compile OpenSSL for Android armeabi
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    needs: Prepare_for_Compilation
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
       # Runs a set of commands using the runners shell
-      - name: Compile openssl for Android
+      - name: Compile
         id: compile
         if: steps.download_ndk.outputs.status == 'success' && steps.download_openssl.outputs.status == 'success'
         run: |
@@ -59,5 +67,5 @@ jobs:
         if: steps.compile.outputs.status == 'success'
         uses: actions/upload-artifact@v2
         with:
-          name: OpenSSL_armeabi_1.1.1i
-          path: /home/runner/work/openssl_for_android/openssl_for_android/openssl_armeabi_1.1.1i
+          name: OpenSSL_1.1.1i_armeabi
+          path: /home/runner/work/openssl_for_android/openssl_for_android/openssl_1.1.1i_armeabi
