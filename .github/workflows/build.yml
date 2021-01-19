@@ -356,8 +356,7 @@ jobs:
     steps:
       - name: Generate release tag
       id: tag
-      run: |
-        echo "::set-output name=release_tag::${{env.VERSION}}"
+      run: echo "::set-output name=release_tag::${{env.VERSION}}"
       
       - name: Upload firmware to release
       uses: softprops/action-gh-release@v1
