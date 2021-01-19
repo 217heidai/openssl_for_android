@@ -14,8 +14,8 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  Prepare_for_Compilation:
-    name: Prepare for Compilation
+  Compile_OpenSSL_for_Android_armeabi:
+    name: Compile OpenSSL for Android armeabi
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -24,7 +24,6 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
       - name: Install aria2
         run: |
           sudo apt -yqq update
@@ -44,15 +43,6 @@ jobs:
           unzip openssl-OpenSSL_1_1_1i.zip
           echo "::set-output name=status::success"
 
-  # This workflow contains a single job called "build"
-  Compile_OpenSSL_for_Android_armeabi:
-    name: Compile OpenSSL for Android armeabi
-    # The type of runner that the job will run on
-    needs: Prepare_for_Compilation
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Runs a set of commands using the runners shell
       - name: Compile
         id: compile
         if: steps.download_ndk.outputs.status == 'success' && steps.download_openssl.outputs.status == 'success'
@@ -68,3 +58,284 @@ jobs:
         with:
           name: OpenSSL_1.1.1i_armeabi
           path: /home/runner/work/openssl_for_android/openssl_for_android/openssl_1.1.1i_armeabi
+
+
+  # This workflow contains a single job called "build"
+  Compile_OpenSSL_for_Android_armeabi-v7a:
+    name: Compile OpenSSL for Android armeabi-v7a
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Install aria2
+        run: |
+          sudo apt -yqq update
+          sudo apt install -yqq aria2
+      
+      - name: Download Android NDK
+        id: download_ndk
+        run: |
+          aria2c https://dl.google.com/android/repository/android-ndk-r14b-linux-x86_64.zip?hl=zh_cn
+          unzip android-ndk-r14b-linux-x86_64.zip
+          echo "::set-output name=status::success"
+
+      - name: Download OpenSSL
+        id: download_openssl
+        run: |
+          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_1_1_1i
+          unzip openssl-OpenSSL_1_1_1i.zip
+          echo "::set-output name=status::success"
+
+      - name: Compile
+        id: compile
+        if: steps.download_ndk.outputs.status == 'success' && steps.download_openssl.outputs.status == 'success'
+        run: |
+          rm -rf build
+          mkdir build
+          bash ./openssl_build_armeabi-v7a.sh
+          echo "::set-output name=status::success"
+
+      - name: upload artifacts
+        if: steps.compile.outputs.status == 'success'
+        uses: actions/upload-artifact@v2
+        with:
+          name: OpenSSL_1.1.1i_armeabi-v7a
+          path: /home/runner/work/openssl_for_android/openssl_for_android/openssl_1.1.1i_armeabi-v7a
+
+
+  # This workflow contains a single job called "build"
+  Compile_OpenSSL_for_Android_armeabi-v8a:
+    name: Compile OpenSSL for Android armeabi-v8a
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Install aria2
+        run: |
+          sudo apt -yqq update
+          sudo apt install -yqq aria2
+      
+      - name: Download Android NDK
+        id: download_ndk
+        run: |
+          aria2c https://dl.google.com/android/repository/android-ndk-r14b-linux-x86_64.zip?hl=zh_cn
+          unzip android-ndk-r14b-linux-x86_64.zip
+          echo "::set-output name=status::success"
+
+      - name: Download OpenSSL
+        id: download_openssl
+        run: |
+          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_1_1_1i
+          unzip openssl-OpenSSL_1_1_1i.zip
+          echo "::set-output name=status::success"
+
+      - name: Compile
+        id: compile
+        if: steps.download_ndk.outputs.status == 'success' && steps.download_openssl.outputs.status == 'success'
+        run: |
+          rm -rf build
+          mkdir build
+          bash ./openssl_build_armeabi-v8a.sh
+          echo "::set-output name=status::success"
+
+      - name: upload artifacts
+        if: steps.compile.outputs.status == 'success'
+        uses: actions/upload-artifact@v2
+        with:
+          name: OpenSSL_1.1.1i_armeabi-v8a
+          path: /home/runner/work/openssl_for_android/openssl_for_android/openssl_1.1.1i_armeabi-v8a
+
+  # This workflow contains a single job called "build"
+  Compile_OpenSSL_for_Android_mips:
+    name: Compile OpenSSL for Android mips
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Install aria2
+        run: |
+          sudo apt -yqq update
+          sudo apt install -yqq aria2
+      
+      - name: Download Android NDK
+        id: download_ndk
+        run: |
+          aria2c https://dl.google.com/android/repository/android-ndk-r14b-linux-x86_64.zip?hl=zh_cn
+          unzip android-ndk-r14b-linux-x86_64.zip
+          echo "::set-output name=status::success"
+
+      - name: Download OpenSSL
+        id: download_openssl
+        run: |
+          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_1_1_1i
+          unzip openssl-OpenSSL_1_1_1i.zip
+          echo "::set-output name=status::success"
+
+      - name: Compile
+        id: compile
+        if: steps.download_ndk.outputs.status == 'success' && steps.download_openssl.outputs.status == 'success'
+        run: |
+          rm -rf build
+          mkdir build
+          bash ./openssl_build_mips.sh
+          echo "::set-output name=status::success"
+
+      - name: upload artifacts
+        if: steps.compile.outputs.status == 'success'
+        uses: actions/upload-artifact@v2
+        with:
+          name: OpenSSL_1.1.1i_mips
+          path: /home/runner/work/openssl_for_android/openssl_for_android/openssl_1.1.1i_mips
+
+
+  # This workflow contains a single job called "build"
+  Compile_OpenSSL_for_Android_mips64:
+    name: Compile OpenSSL for Android mips64
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Install aria2
+        run: |
+          sudo apt -yqq update
+          sudo apt install -yqq aria2
+      
+      - name: Download Android NDK
+        id: download_ndk
+        run: |
+          aria2c https://dl.google.com/android/repository/android-ndk-r14b-linux-x86_64.zip?hl=zh_cn
+          unzip android-ndk-r14b-linux-x86_64.zip
+          echo "::set-output name=status::success"
+
+      - name: Download OpenSSL
+        id: download_openssl
+        run: |
+          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_1_1_1i
+          unzip openssl-OpenSSL_1_1_1i.zip
+          echo "::set-output name=status::success"
+
+      - name: Compile
+        id: compile
+        if: steps.download_ndk.outputs.status == 'success' && steps.download_openssl.outputs.status == 'success'
+        run: |
+          rm -rf build
+          mkdir build
+          bash ./openssl_build_mips64.sh
+          echo "::set-output name=status::success"
+
+      - name: upload artifacts
+        if: steps.compile.outputs.status == 'success'
+        uses: actions/upload-artifact@v2
+        with:
+          name: OpenSSL_1.1.1i_mips64
+          path: /home/runner/work/openssl_for_android/openssl_for_android/openssl_1.1.1i_mips64
+
+
+  # This workflow contains a single job called "build"
+  Compile_OpenSSL_for_Android_x86:
+    name: Compile OpenSSL for Android x86
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Install aria2
+        run: |
+          sudo apt -yqq update
+          sudo apt install -yqq aria2
+      
+      - name: Download Android NDK
+        id: download_ndk
+        run: |
+          aria2c https://dl.google.com/android/repository/android-ndk-r14b-linux-x86_64.zip?hl=zh_cn
+          unzip android-ndk-r14b-linux-x86_64.zip
+          echo "::set-output name=status::success"
+
+      - name: Download OpenSSL
+        id: download_openssl
+        run: |
+          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_1_1_1i
+          unzip openssl-OpenSSL_1_1_1i.zip
+          echo "::set-output name=status::success"
+
+      - name: Compile
+        id: compile
+        if: steps.download_ndk.outputs.status == 'success' && steps.download_openssl.outputs.status == 'success'
+        run: |
+          rm -rf build
+          mkdir build
+          bash ./openssl_build_x86.sh
+          echo "::set-output name=status::success"
+
+      - name: upload artifacts
+        if: steps.compile.outputs.status == 'success'
+        uses: actions/upload-artifact@v2
+        with:
+          name: OpenSSL_1.1.1i_x86
+          path: /home/runner/work/openssl_for_android/openssl_for_android/openssl_1.1.1i_x86
+
+
+  # This workflow contains a single job called "build"
+  Compile_OpenSSL_for_Android_x86_64:
+    name: Compile OpenSSL for Android x86_64
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Install aria2
+        run: |
+          sudo apt -yqq update
+          sudo apt install -yqq aria2
+      
+      - name: Download Android NDK
+        id: download_ndk
+        run: |
+          aria2c https://dl.google.com/android/repository/android-ndk-r14b-linux-x86_64.zip?hl=zh_cn
+          unzip android-ndk-r14b-linux-x86_64.zip
+          echo "::set-output name=status::success"
+
+      - name: Download OpenSSL
+        id: download_openssl
+        run: |
+          aria2c https://codeload.github.com/openssl/openssl/zip/OpenSSL_1_1_1i
+          unzip openssl-OpenSSL_1_1_1i.zip
+          echo "::set-output name=status::success"
+
+      - name: Compile
+        id: compile
+        if: steps.download_ndk.outputs.status == 'success' && steps.download_openssl.outputs.status == 'success'
+        run: |
+          rm -rf build
+          mkdir build
+          bash ./openssl_build_x86_64.sh
+          echo "::set-output name=status::success"
+
+      - name: upload artifacts
+        if: steps.compile.outputs.status == 'success'
+        uses: actions/upload-artifact@v2
+        with:
+          name: OpenSSL_1.1.1i_x86_64
+          path: /home/runner/work/openssl_for_android/openssl_for_android/openssl_1.1.1i_x86_64
