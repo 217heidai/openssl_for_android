@@ -353,11 +353,16 @@ jobs:
     needs: [Compile_OpenSSL_for_Android_armeabi, Compile_OpenSSL_for_Android_armeabi-v7a, Compile_OpenSSL_for_Android_arm64-v8a, Compile_OpenSSL_for_Android_mips, Compile_OpenSSL_for_Android_mips64, Compile_OpenSSL_for_Android_x86, Compile_OpenSSL_for_Android_x86_64]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:  
-    - name: Upload firmware to release
+    steps:
+      - name: Generate release tag
+      id: tag
+      run: |
+        echo "::set-output name=release_tag::${{env.VERSION}}"
+      
+      - name: Upload firmware to release
       uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       with:
-        tag_name: ${{env.VERSION}}
+        tag_name: ${{steps.tag.outputs.release_tag}}
         files: /home/runner/work/openssl_for_android/openssl_for_android/*
