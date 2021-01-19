@@ -359,5 +359,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       with:
-        tag_name: ${{VERSION}}
+        tag_name: ${{env.VERSION}}
         files: /home/runner/work/openssl_for_android/openssl_for_android/*
