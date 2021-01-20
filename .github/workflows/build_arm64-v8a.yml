@@ -25,7 +25,7 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # Checks-out your repository under $env.GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@master
 
       - name: Install aria2
@@ -61,7 +61,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: OpenSSL_${{env.VERSION}}_arm64-v8a
-          path: ${{GITHUB_WORKSPACE}}/openssl_${{env.VERSION}}_arm64-v8a
+          path: ${{env.GITHUB_WORKSPACE}}/openssl_${{env.VERSION}}_arm64-v8a
 
       - name: Generate release tag
         id: tag
@@ -77,4 +77,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.tag.outputs.release_tag }}
-          files: ${{GITHUB_WORKSPACE}}/OpenSSL_${{env.VERSION}}_arm64-v8a.tar.gz
+          files: ${{env.GITHUB_WORKSPACE}}/OpenSSL_${{env.VERSION}}_arm64-v8a.tar.gz

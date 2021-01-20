@@ -25,7 +25,7 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # Checks-out your repository under $env.GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@master
 
       - name: Install aria2
@@ -61,4 +61,4 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: OpenSSL_${{env.VERSION}}_mips64
-          path: ${{GITHUB_WORKSPACE}}/openssl_${{env.VERSION}}_mips64
+          path: ${{env.GITHUB_WORKSPACE}}/openssl_${{env.VERSION}}_mips64
