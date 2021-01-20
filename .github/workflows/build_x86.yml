@@ -14,6 +14,7 @@ on:
 env:
   OPENSSL_VERSION: 1_1_1i
   VERSION: 1.1.1i
+  WORK_PATH: home/runner/work/openssl_for_android/openssl_for_android
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -25,7 +26,7 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $env.GITHUB_WORKSPACE, so your job can access it
+      # Checks-out your repository under $env.WORK_PATH, so your job can access it
       - uses: actions/checkout@master
 
       - name: Install aria2
@@ -61,4 +62,4 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: OpenSSL_${{env.VERSION}}_x86
-          path: ${{env.GITHUB_WORKSPACE}}/openssl_${{env.VERSION}}_x86
+          path: ${{env.WORK_PATH}}/openssl_${{env.VERSION}}_x86
