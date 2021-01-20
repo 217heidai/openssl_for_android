@@ -21,7 +21,7 @@ env:
 jobs:
   # This workflow contains a single job called "build"
   Compile_OpenSSL_for_Android_arm64-v8a:
-    name: Compile ${{env.ANDROID_ABI}}
+    name: Compile arm64-v8a
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
