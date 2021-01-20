@@ -61,11 +61,12 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: OpenSSL_${{env.VERSION}}_arm64-v8a
-          path: /home/runner/work/openssl_for_android/openssl_for_android/openssl_${{env.VERSION}}_arm64-v8a
+          path: ${{GITHUB_WORKSPACE}}/openssl_${{env.VERSION}}_arm64-v8a
 
       - name: Generate release tag
         id: tag
         run: |
+          tar -zcvf OpenSSL_${{env.VERSION}}_arm64-v8a.tar.gz openssl_${{env.VERSION}}_arm64-v8a
           echo "::set-output name=release_tag::${{env.VERSION}}"
           echo "::set-output name=status::success"
       
@@ -76,4 +77,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.tag.outputs.release_tag }}
-          files: /home/runner/work/openssl_for_android/openssl_for_android/openssl_${{env.VERSION}}_arm64-v8a
+          files: ${{GITHUB_WORKSPACE}}/OpenSSL_${{env.VERSION}}_arm64-v8a.tar.gz

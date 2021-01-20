@@ -61,4 +61,4 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: OpenSSL_${{env.VERSION}}_mips
-          path: /home/runner/work/openssl_for_android/openssl_for_android/openssl_${{env.VERSION}}_mips
+          path: ${{GITHUB_WORKSPACE}}/openssl_${{env.VERSION}}_mips
