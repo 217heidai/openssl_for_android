@@ -15,6 +15,7 @@ env:
   OPENSSL_VERSION: 1_1_1i
   VERSION: 1.1.1i
   WORK_PATH: home/runner/work/openssl_for_android/openssl_for_android
+  RELEASE_PATH: home/runner/work/openssl_for_android/openssl_for_android/release
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -68,6 +69,7 @@ jobs:
         id: tag
         run: |
           tar -zcvf OpenSSL_${{env.VERSION}}_arm64-v8a.tar.gz openssl_${{env.VERSION}}_arm64-v8a
+          mv OpenSSL_${{env.VERSION}}_arm64-v8a.tar.gz ${{env.RELEASE_PATH}}/
           echo "::set-output name=release_tag::${{env.VERSION}}"
           echo "::set-output name=status::success"
       
@@ -78,4 +80,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.tag.outputs.release_tag }}
-          files: ${{env.WORK_PATH}}/OpenSSL_${{env.VERSION}}_arm64-v8a.tar.gz
+          files: ${{env.RELEASE_PATH}}/*
