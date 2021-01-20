@@ -28,7 +28,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $env.WORK_PATH, so your job can access it
-      - uses: actions/checkout@master
+      - uses: actions/checkout@main
 
       - name: Install aria2
         run: |
@@ -60,7 +60,7 @@ jobs:
 
       - name: upload artifacts
         if: steps.compile.outputs.status == 'success'
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@main
         with:
           name: OpenSSL_${{env.VERSION}}_${{env.ANDROID_ABI}}
           path: ${{env.WORK_PATH}}/openssl_${{env.VERSION}}_${{env.ANDROID_ABI}}

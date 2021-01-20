@@ -12,22 +12,23 @@ on:
   workflow_dispatch:
 
 env:
+  ANDROID_ABI: armeabi
   OPENSSL_VERSION: 1_1_1i
   VERSION: 1.1.1i
-  WORK_PATH: home/runner/work/openssl_for_android/openssl_for_android
+  WORK_PATH: /home/runner/work/openssl_for_android/openssl_for_android
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
   Compile_OpenSSL_for_Android_armeabi:
-    name: Compile OpenSSL for Android armeabi
+    name: Compile armeabi
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $env.WORK_PATH, so your job can access it
-      - uses: actions/checkout@master
+      - uses: actions/checkout@main
 
       - name: Install aria2
         run: |
@@ -54,12 +55,28 @@ jobs:
         run: |
           rm -rf build
           mkdir build
-          bash ./openssl_build_armeabi.sh
+          bash ./openssl_build_${{env.ANDROID_ABI}}.sh
           echo "::set-output name=status::success"
 
       - name: upload artifacts
         if: steps.compile.outputs.status == 'success'
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@main
         with:
-          name: OpenSSL_${{env.VERSION}}_armeabi
-          path: ${{env.WORK_PATH}}/openssl_${{env.VERSION}}_armeabi
+          name: OpenSSL_${{env.VERSION}}_${{env.ANDROID_ABI}}
+          path: ${{env.WORK_PATH}}/openssl_${{env.VERSION}}_${{env.ANDROID_ABI}}
+
+      - name: Generate release tag
+        id: tag
+        run: |
+          tar -zcvf OpenSSL_${{env.VERSION}}_${{env.ANDROID_ABI}}.tar.gz openssl_${{env.VERSION}}_${{env.ANDROID_ABI}}
+          echo "::set-output name=release_tag::${{env.VERSION}}"
+          echo "::set-output name=status::success"
+      
+      - name: Upload firmware to release
+        uses: softprops/action-gh-release@v1
+        if: steps.tag.outputs.status == 'success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.release_tag }}
+          files: ${{env.WORK_PATH}}/OpenSSL_${{env.VERSION}}_${{env.ANDROID_ABI}}.tar.gz
