@@ -64,13 +64,14 @@ jobs:
       
       - name: Upload firmware to release
         id: upload
-        uses: softprops/action-gh-release@v1
         if: steps.tag.outputs.status == 'success' && !cancelled()
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.tag.outputs.release_tag }}
           files: ${{env.WORK_PATH}}/OpenSSL_${{env.VERSION}}_${{env.ANDROID_ABI}}.tar.gz
+        run: echo "::set-output name=status::success"
 
       - name: WeChat notification
         if: steps.upload.outputs.status == 'success' && !cancelled()
