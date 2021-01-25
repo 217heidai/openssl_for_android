@@ -1,5 +1,5 @@
 # OpenSSL for Android
-Auto compile static OpenSSL(1.1.1*) library for android by Github Actions.
+Automatically compile static OpenSSL(1.1.1*) library for Android by Github Actions.
 
 ## Android
 * [x] armeabi

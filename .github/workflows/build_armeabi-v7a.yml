@@ -48,19 +48,12 @@ jobs:
 
       - name: Compile
         id: compile
-        if: steps.download_ndk.outputs.status == 'success' && steps.download_openssl.outputs.status == 'success'
+        if: steps.download_ndk.outputs.status == 'success' && steps.download_openssl.outputs.status == 'success' && !cancelled()
         run: |
           rm -rf build
           mkdir build
           bash ./openssl_build_${{env.ANDROID_ABI}}.sh
           echo "::set-output name=status::success"
-
-      - name: upload artifacts
-        if: steps.compile.outputs.status == 'success'
-        uses: actions/upload-artifact@main
-        with:
-          name: OpenSSL_${{env.VERSION}}_${{env.ANDROID_ABI}}
-          path: ${{env.WORK_PATH}}/openssl_${{env.VERSION}}_${{env.ANDROID_ABI}}
 
       - name: Generate release tag
         id: tag
@@ -70,10 +63,15 @@ jobs:
           echo "::set-output name=status::success"
       
       - name: Upload firmware to release
+        id: upload
         uses: softprops/action-gh-release@v1
-        if: steps.tag.outputs.status == 'success'
+        if: steps.tag.outputs.status == 'success' && !cancelled()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.tag.outputs.release_tag }}
           files: ${{env.WORK_PATH}}/OpenSSL_${{env.VERSION}}_${{env.ANDROID_ABI}}.tar.gz
+
+      - name: WeChat notification
+        if: steps.upload.outputs.status == 'success' && !cancelled()
+        run: curl https://sc.ftqq.com/${{ secrets.SERVERCHAN }}.send?text=OpenSSL_${{env.VERSION}}_${{env.ANDROID_ABI}}编译完成
