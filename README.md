@@ -9,3 +9,9 @@ Automatically compile static OpenSSL(1.1.1*) library for Android by Github Actio
 * [x] x86_64
 * [x] mips
 * [x] mips64
+
+## ChangeLog
+| Date      | Content                                                              |
+|-----------|----------------------------------------------------------------------|
+| 2021.02.18 | OpenSSL 1.1.1j |
+| 2021.01.20 | OpenSSL 1.1.1i |
