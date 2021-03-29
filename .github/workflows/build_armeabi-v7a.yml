@@ -10,8 +10,8 @@ on:
 
 env:
   ANDROID_ABI: armeabi-v7a
-  OPENSSL_VERSION: 1_1_1j
-  VERSION: 1.1.1j
+  OPENSSL_VERSION: 1_1_1k
+  VERSION: 1.1.1k
   WORK_PATH: /home/runner/work/openssl_for_android/openssl_for_android
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
