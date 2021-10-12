@@ -11,7 +11,7 @@ on:
 env:
   ANDROID_ABI: x86
   OPENSSL_VERSION: 3.0.0
-  ANDROID_NDK_VERSION: r16b
+  ANDROID_NDK_VERSION: r14b
   WORK_PATH: /home/runner/work/openssl_for_android/openssl_for_android
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
