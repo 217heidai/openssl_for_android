@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 WORK_PATH=$(cd "$(dirname "$0")";pwd)
-ANDROID_NDK_PATH=${WORK_PATH}/android-ndk-r19c
+ANDROID_NDK_PATH=${WORK_PATH}/android-ndk-r16b
 OPENSSL_SOURCES_PATH=${WORK_PATH}/openssl-3.0.0
 ANDROID_TARGET_API=$1
 ANDROID_TARGET_ABI=$2
@@ -20,6 +20,7 @@ function build_library {
     rm -rf ${OUTPUT_PATH}/ssl
     rm -rf ${OUTPUT_PATH}/lib/engines*
     rm -rf ${OUTPUT_PATH}/lib/pkgconfig
+    rm -rf ${OUTPUT_PATH}/lib/ossl-modules
     echo "Build completed! Check output libraries in ${OUTPUT_PATH}"
 }
 

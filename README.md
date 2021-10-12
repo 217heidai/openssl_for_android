@@ -2,7 +2,7 @@
 Automatically compile static OpenSSL(3.0.0*) library for Android by Github Actions.
 
 ## Android
-`*MIPS` targets are no longer supported with NDK R20+.
+`*MIPS` targets are no longer supported with NDK R17+.
 * [x] armeabi
 * [x] armeabi-v7a
 * [x] arm64-v8a
