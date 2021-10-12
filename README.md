@@ -8,13 +8,13 @@ Automatically compile static OpenSSL(3.0.0*) library for Android by Github Actio
 * [x] arm64-v8a
 * [x] x86
 * [x] x86_64
-* [x] mips
-* [x] mips64
+* [ ] mips
+* [ ] mips64
 
 ## ChangeLog
 | Date      | Content                                                              |
 |-----------|----------------------------------------------------------------------|
-| 2021.10.12 | OpenSSL 3.0.0 |
+| 2021.10.12 | OpenSSL 3.0.0 && `*MIPS` targets are no longer supported|
 | 2021.09.08 | OpenSSL 1.1.1l |
 | 2021.03.29 | OpenSSL 1.1.1k |
 | 2021.02.18 | OpenSSL 1.1.1j |
