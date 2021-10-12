@@ -68,4 +68,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.tag.outputs.release_tag }}
-          files: ${{env.WORK_PATH}}/OpenSSL_${{env.VERSION}}_${{env.ANDROID_ABI}}.tar.gz
+          files: ${{env.WORK_PATH}}/OpenSSL_${{env.OPENSSL_VERSION}}_${{env.ANDROID_ABI}}.tar.gz
