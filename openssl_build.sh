@@ -1,11 +1,11 @@
 #!/bin/bash -e
 
 WORK_PATH=$(cd "$(dirname "$0")";pwd)
-ANDROID_NDK_PATH=${WORK_PATH}/android-ndk-r14b
-OPENSSL_SOURCES_PATH=${WORK_PATH}/openssl-OpenSSL_1_1_1l
+ANDROID_NDK_PATH=${WORK_PATH}/android-ndk-r19c
+OPENSSL_SOURCES_PATH=${WORK_PATH}/openssl-OpenSSL_3_0_0
 ANDROID_TARGET_API=$1
 ANDROID_TARGET_ABI=$2
-OUTPUT_PATH=${WORK_PATH}/openssl_1.1.1l_${ANDROID_TARGET_ABI}
+OUTPUT_PATH=${WORK_PATH}/openssl_3.0.0_${ANDROID_TARGET_ABI}
 
 OPENSSL_TMP_FOLDER=/tmp/openssl_${ANDROID_TARGET_ABI}
 rm -rf ${OPENSSL_TMP_FOLDER}
@@ -30,7 +30,7 @@ then
     export ANDROID_NDK_HOME=${ANDROID_NDK_PATH}
     PATH=$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
     cd ${OPENSSL_TMP_FOLDER}
-    ./Configure android-arm -DANDROID_API=${ANDROID_TARGET_API} no-shared no-tests --prefix=${OUTPUT_PATH}
+    ./Configure android-arm -D__ANDROID_API__=${ANDROID_TARGET_API} no-shared no-tests --prefix=${OUTPUT_PATH}
     build_library
 
 elif [ "$ANDROID_TARGET_ABI" == "armeabi-v7a" ]
@@ -38,7 +38,7 @@ then
     export ANDROID_NDK_HOME=${ANDROID_NDK_PATH}
     PATH=$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
     cd ${OPENSSL_TMP_FOLDER}
-    ./Configure android-arm -DANDROID_API=${ANDROID_TARGET_API} no-shared no-tests --prefix=${OUTPUT_PATH}
+    ./Configure android-arm -D__ANDROID_API__=${ANDROID_TARGET_API} no-shared no-tests --prefix=${OUTPUT_PATH}
     build_library
 
 elif [ "$ANDROID_TARGET_ABI" == "arm64-v8a" ]
@@ -46,7 +46,7 @@ then
     export ANDROID_NDK_HOME=${ANDROID_NDK_PATH}
     PATH=$ANDROID_NDK_HOME/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64/bin:$PATH
     cd ${OPENSSL_TMP_FOLDER}
-    ./Configure android-arm64 -DANDROID_API=${ANDROID_TARGET_API} no-shared no-tests --prefix=${OUTPUT_PATH}
+    ./Configure android-arm64 -D__ANDROID_API__=${ANDROID_TARGET_API} no-shared no-tests --prefix=${OUTPUT_PATH}
     build_library
 
 elif [ "$ANDROID_TARGET_ABI" == "mips" ]
@@ -54,7 +54,7 @@ then
     export ANDROID_NDK_HOME=${ANDROID_NDK_PATH}
     PATH=$ANDROID_NDK_HOME/toolchains/mipsel-linux-android-4.9/prebuilt/linux-x86_64/bin:$PATH
     cd ${OPENSSL_TMP_FOLDER}
-    ./Configure android-mips -DANDROID_API=${ANDROID_TARGET_API} no-shared no-tests --prefix=${OUTPUT_PATH}
+    ./Configure android-mips -D__ANDROID_API__=${ANDROID_TARGET_API} no-shared no-tests --prefix=${OUTPUT_PATH}
     build_library
 
 elif [ "$ANDROID_TARGET_ABI" == "mips64" ]
@@ -62,7 +62,7 @@ then
     export ANDROID_NDK_HOME=${ANDROID_NDK_PATH}
     PATH=$ANDROID_NDK_HOME/toolchains/mips64el-linux-android-4.9/prebuilt/linux-x86_64/bin:$PATH
     cd ${OPENSSL_TMP_FOLDER}
-    ./Configure android-mips64 -DANDROID_API=${ANDROID_TARGET_API} no-shared no-tests --prefix=${OUTPUT_PATH}
+    ./Configure android-mips64 -D__ANDROID_API__=${ANDROID_TARGET_API} no-shared no-tests --prefix=${OUTPUT_PATH}
     build_library
 
 elif [ "$ANDROID_TARGET_ABI" == "x86" ]
@@ -70,7 +70,7 @@ then
     export ANDROID_NDK_HOME=${ANDROID_NDK_PATH}
     PATH=$ANDROID_NDK_HOME/toolchains/x86-4.9/prebuilt/linux-x86_64/bin:$PATH
     cd ${OPENSSL_TMP_FOLDER}
-    ./Configure android-x86 -DANDROID_API=${ANDROID_TARGET_API} no-shared no-tests --prefix=${OUTPUT_PATH}
+    ./Configure android-x86 -D__ANDROID_API__=${ANDROID_TARGET_API} no-shared no-tests --prefix=${OUTPUT_PATH}
     build_library
 
 elif [ "$ANDROID_TARGET_ABI" == "x86_64" ]
@@ -78,7 +78,7 @@ then
     export ANDROID_NDK_HOME=${ANDROID_NDK_PATH}
     PATH=$ANDROID_NDK_HOME/toolchains/x86_64-4.9/prebuilt/linux-x86_64/bin:$PATH
     cd ${OPENSSL_TMP_FOLDER}
-    ./Configure android-x86_64 -DANDROID_API=${ANDROID_TARGET_API} no-shared no-tests --prefix=${OUTPUT_PATH}
+    ./Configure android-x86_64 -D__ANDROID_API__=${ANDROID_TARGET_API} no-shared no-tests --prefix=${OUTPUT_PATH}
     build_library
 
 else
