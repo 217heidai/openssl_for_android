@@ -1,5 +1,5 @@
 # OpenSSL for Android
-Automatically compile static OpenSSL(3.0.0*) library for Android by Github Actions.
+Automatically compile static OpenSSL(3.0.1*) library for Android by Github Actions.
 
 ## Android
 `*MIPS` targets are no longer supported with NDK R17+.
@@ -14,7 +14,7 @@ Automatically compile static OpenSSL(3.0.0*) library for Android by Github Actio
 ## ChangeLog
 | Date      | Content                                                              |
 |-----------|----------------------------------------------------------------------|
-| 2021.10.12 | OpenSSL 3.0.0 && `*MIPS` targets are no longer supported|
+| 2021.10.12 | OpenSSL 3.0.1 && `*MIPS` targets are no longer supported|
 | 2021.09.08 | OpenSSL 1.1.1l |
 | 2021.03.29 | OpenSSL 1.1.1k |
 | 2021.02.18 | OpenSSL 1.1.1j |
