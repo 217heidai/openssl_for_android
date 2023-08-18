@@ -1,9 +1,9 @@
 # OpenSSL for Android
-Automatically compile static OpenSSL(3.0.*) library for Android by Github Actions.
+Automatically compile static OpenSSL(3.1.*) library for Android by Github Actions.
 
 ## Android
-`*MIPS` targets are no longer supported with NDK R17+.
-* [x] armeabi
+`armeabi`、`mips`、`mips64` targets are no longer supported with NDK R17+.
+* [ ] armeabi
 * [x] armeabi-v7a
 * [x] arm64-v8a
 * [x] x86
