@@ -4,7 +4,7 @@ Automatically compile static OpenSSL(3.1.*) library for Android by Github Action
 Usage:
 1. To build latest OpenSSL use:
     ```
-    openssl_build.sh [android_target_abi | clean] [android_target_api | default].
+    openssl_build.sh [android_target_abi | clean] [android_target_api | default]
     ```
     The two parameters are:
     * `android_target_abi` - one of:
