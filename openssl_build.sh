@@ -3,11 +3,11 @@
 # modified by ABr
 
 # identify which openssl version we require
-OPENSSL_VERSION=3.1.3
+OPENSSL_VERSION="${OPENSSL_VERSION:-3.1.3}"
 
-# caller may pass in target API and ABI
-ANDROID_TARGET_API="${1:-30}" ; shift
+# caller may pass in target ABI and API
 ANDROID_TARGET_ABI="${1:-arm64-v8a}" ; shift
+ANDROID_TARGET_API="${1:-default}" ; shift
 
 # special surprise: if ANDROID_TARGET_API is 'clean' then clean up...
 if [ x"$ANDROID_TARGET_API" = xclean ] ; then
@@ -69,8 +69,16 @@ function pull_openssl {
 }
 
 function build_library {
-  mkdir -p ${OUTPUT_PATH}
+  local l_rc=0
+
+  echo "mkdir -p '${OUTPUT_PATH}'"
+  mkdir -p "${OUTPUT_PATH}"
+
+  echo "make && make install"
   make && make install
+  l_rc=$? ; [ $l_rc -ne 0 ] && return $l_rc
+
+  echo 'Cleaning up build...'
   rm -rf ${OPENSSL_TMP_FOLDER}
   rm -rf ${OUTPUT_PATH}/bin
   rm -rf ${OUTPUT_PATH}/share
@@ -78,6 +86,8 @@ function build_library {
   rm -rf ${OUTPUT_PATH}/lib/engines*
   rm -rf ${OUTPUT_PATH}/lib/pkgconfig
   rm -rf ${OUTPUT_PATH}/lib/ossl-modules
+  echo ''
+
   echo "Build completed! Check output libraries in ${OUTPUT_PATH}"
 }
 
@@ -107,9 +117,33 @@ case "$ANDROID_TARGET_ABI" in
   *) echo "Unsupported ANDROID_TARGET_ABI '$ANDROID_TARGET_ABI'" ; exit 1;;
 esac
 
+echo "Using ANDROID_NDK_ROOT='$ANDROID_NDK_ROOT'..."
+echo "Using PATH='$PATH'..."
+echo ''
+
 # the remainder is the same for all :)
-cd ${OPENSSL_TMP_FOLDER}
-./Configure $openssl_platform -D__ANDROID_API__=${ANDROID_TARGET_API} -static no-asm no-shared no-tests --prefix=${OUTPUT_PATH}
+echo "cd '${OPENSSL_TMP_FOLDER}'"
+cd "${OPENSSL_TMP_FOLDER}"
+echo ''
+
+# by default __ANDROID_API__ is defined and we get warnings if we redefine
+the_tmp="/tmp/openssl_build_$$.sh"
+echo "#!$SHELL" >"$the_tmp"
+echo "./Configure $openssl_platform \\" >>"$the_tmp"
+if [ x"$ANDROID_TARGET_API" != xdefault ] ; then
+  # see https://github.com/openssl/openssl/issues/18561#issuecomment-1155298077
+  echo "-U__ANDROID_API__ -D__ANDROID_API__=${ANDROID_TARGET_API} \\" >>"$the_tmp"
+fi
+echo "-static no-asm no-shared no-tests --prefix='${OUTPUT_PATH}'" >>"$the_tmp"
+echo 'Running configure...'
+chmod +x "$the_tmp"
+cat "$the_tmp"
+"$the_tmp"
+the_rc=$?
+rm -f "$the_tmp"
+[ $the_rc -ne 0 ] && exit $the_rc
+echo ''
+
 build_library
 exit $?
 
