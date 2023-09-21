@@ -132,9 +132,9 @@ echo "#!$SHELL" >"$the_tmp"
 echo "./Configure $openssl_platform \\" >>"$the_tmp"
 if [ x"$ANDROID_TARGET_API" != xdefault ] ; then
   # see https://github.com/openssl/openssl/issues/18561#issuecomment-1155298077
-  echo "-U__ANDROID_API__ -D__ANDROID_API__=${ANDROID_TARGET_API} \\" >>"$the_tmp"
+  echo "  -U__ANDROID_API__ -D__ANDROID_API__=${ANDROID_TARGET_API} \\" >>"$the_tmp"
 fi
-echo "-static no-asm no-shared no-tests --prefix='${OUTPUT_PATH}'" >>"$the_tmp"
+echo "  -static no-asm no-shared no-tests --prefix='${OUTPUT_PATH}'" >>"$the_tmp"
 echo 'Running configure...'
 chmod +x "$the_tmp"
 cat "$the_tmp"
@@ -147,39 +147,3 @@ echo ''
 build_library
 exit $?
 
-if [ "$ANDROID_TARGET_ABI" == "armeabi-v7a" ]
-then
-    export ANDROID_NDK_ROOT=${ANDROID_NDK_PATH}
-    PATH=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_ROOT/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$ANDROID_NDK_ROOT/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64/bin:$PATH
-    cd ${OPENSSL_TMP_FOLDER}
-    ./Configure android-arm -D__ANDROID_API__=${ANDROID_TARGET_API} -static no-asm no-shared no-tests --prefix=${OUTPUT_PATH}
-    build_library
-
-elif [ "$ANDROID_TARGET_ABI" == "arm64-v8a" ]
-then
-    export ANDROID_NDK_ROOT=${ANDROID_NDK_PATH}
-    PATH=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_ROOT/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$ANDROID_NDK_ROOT/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64/bin:$PATH
-    cd ${OPENSSL_TMP_FOLDER}
-    ./Configure android-arm64 -D__ANDROID_API__=${ANDROID_TARGET_API} -static no-asm no-shared no-tests --prefix=${OUTPUT_PATH}
-    build_library
-
-elif [ "$ANDROID_TARGET_ABI" == "x86" ]
-then
-    export ANDROID_NDK_ROOT=${ANDROID_NDK_PATH}
-    PATH=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_ROOT/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$ANDROID_NDK_ROOT/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64/bin:$PATH
-    cd ${OPENSSL_TMP_FOLDER}
-    ./Configure android-x86 -D__ANDROID_API__=${ANDROID_TARGET_API} -static no-asm no-shared no-tests --prefix=${OUTPUT_PATH}
-    build_library
-
-elif [ "$ANDROID_TARGET_ABI" == "x86_64" ]
-then
-    export ANDROID_NDK_ROOT=${ANDROID_NDK_PATH}
-    PATH=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_ROOT/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$ANDROID_NDK_ROOT/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64/bin:$PATH
-    cd ${OPENSSL_TMP_FOLDER}
-    ./Configure android-x86_64 -D__ANDROID_API__=${ANDROID_TARGET_API} -static no-asm no-shared no-tests --prefix=${OUTPUT_PATH}
-    build_library
-
-else
-    echo "Unsupported target ABI: $ANDROID_TARGET_ABI"
-    exit 1
-fi

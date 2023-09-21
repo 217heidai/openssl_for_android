@@ -2,16 +2,17 @@
 Automatically compile static OpenSSL(3.1.*) library for Android by Github Actions.
 
 Usage:
+1. Requires installed Android NDK. The location can be set using `ANDROID_NDK_LOCAL_PLATFORM` environment variable but the script attempts to locate the NDK for macOS and Linux if the environment variable is not provided.
 1. To build latest OpenSSL use:
     ```
     openssl_build.sh [android_target_abi | clean] [android_target_api | default]
     ```
     The two parameters are:
     * `android_target_abi` - one of:
-        * `armeabi-v7a`, `arm64-v8a`, `x86`, `x86_64` - ABI to build (`arm64-v8a` is default)
+        * `armeabi-v7a`, `arm64-v8a`, `x86`, `x86_64` - ABI to build (`arm64-v8a` is default if not provided on command line)
         * `clean` - Removes all local files
-    * `android_target_api` - either the specific API level to target or `default` to use the default level from the NDK.
-1. OpenSSL is pulled down based on the environment variable `OPENSSL_VERSION` (defaults to 3.1.3)
+    * `android_target_api` - specific API level to target or `default` to use the default level from the NDK (`default` is used if not provided on command line)
+1. OpenSSL is pulled down based on the environment variable `OPENSSL_VERSION` (defaults to `3.1.3`)
 1. Output is placed in the local folder under `openssl-[android_target_abi]`. For example, arm64 is located under `openssl-arm64-v8a`.
 
 To build everything using default target API level:
