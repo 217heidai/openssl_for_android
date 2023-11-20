@@ -3,7 +3,7 @@
 # modified by ABr
 
 # identify which openssl version we require
-OPENSSL_VERSION="${OPENSSL_VERSION:-3.1.3}"
+OPENSSL_VERSION="${OPENSSL_VERSION:-3.1.4}"
 
 # caller may pass in target ABI and API
 ANDROID_TARGET_ABI="${1:-arm64-v8a}" ; shift
@@ -129,6 +129,8 @@ echo ''
 # by default __ANDROID_API__ is defined and we get warnings if we redefine
 the_tmp="/tmp/openssl_build_$$.sh"
 echo "#!$SHELL" >"$the_tmp"
+# ABr: solve "relocation R_AARCH64_ADR_PREL_PG_HI21 cannot be used against symbol 'bio_type_lock'; recompile with -fPIC"
+echo 'export CFLAGS=-fPIC' >>"$the_tmp"
 echo "./Configure $openssl_platform \\" >>"$the_tmp"
 if [ x"$ANDROID_TARGET_API" != xdefault ] ; then
   # see https://github.com/openssl/openssl/issues/18561#issuecomment-1155298077
