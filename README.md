@@ -33,6 +33,7 @@ for i in armeabi-v7a arm64-v8a x86 x86_64 ; do ./openssl_build.sh $i 2>&1 | tee 
 ## ChangeLog
 | Date      | Content                                                              |
 |-----------|----------------------------------------------------------------------|
+| 2023.10.25 | OpenSSL 3.1.4 |
 | 2023.09.21 | OpenSSL 3.1.3 |
 | 2023.08.03 | OpenSSL 3.1.2 |
 | 2023.06.05 | OpenSSL 3.1.1 |
