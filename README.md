@@ -14,6 +14,7 @@ Automatically compile static OpenSSL(3.2.*) library for Android by Github Action
 ## ChangeLog
 | Date      | Content                                                              |
 |-----------|----------------------------------------------------------------------|
+| 2024.02.01 | OpenSSL 3.2.1 |
 | 2023.11.24 | OpenSSL 3.2.0 |
 | 2023.10.25 | OpenSSL 3.1.4 |
 | 2023.09.21 | OpenSSL 3.1.3 |
