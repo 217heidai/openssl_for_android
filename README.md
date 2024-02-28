@@ -1,5 +1,5 @@
 # OpenSSL for Android
-Automatically compile static OpenSSL(3.1.*) library for Android by Github Actions.
+Automatically compile static OpenSSL(3.2.*) library for Android by Github Actions.
 
 Usage:
 1. Requires installed Android NDK. The location can be set using `ANDROID_NDK_LOCAL_PLATFORM` environment variable but the script attempts to locate the NDK for macOS and Linux if the environment variable is not provided.
@@ -34,6 +34,8 @@ Output is placed in `/tmp/build_openssl_android.log`
 ## ChangeLog
 | Date      | Content                                                              |
 |-----------|----------------------------------------------------------------------|
+| 2024.02.01 | OpenSSL 3.2.1 |
+| 2023.11.24 | OpenSSL 3.2.0 |
 | 2023.10.25 | OpenSSL 3.1.4 |
 | 2023.09.21 | OpenSSL 3.1.3 |
 | 2023.08.03 | OpenSSL 3.1.2 |

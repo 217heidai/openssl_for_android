@@ -3,10 +3,10 @@
 # modified by ABr
 WORK_PATH=$(cd "$(dirname "$0")";pwd)
 ANDROID_NDK_PATH=${WORK_PATH}/android-ndk-r20b
-OPENSSL_SOURCES_PATH=${WORK_PATH}/openssl-3.1.4
+OPENSSL_SOURCES_PATH=${WORK_PATH}/openssl-3.2.1
 ANDROID_TARGET_API=$1
 ANDROID_TARGET_ABI=$2
-OUTPUT_PATH=${WORK_PATH}/openssl_3.1.4_${ANDROID_TARGET_ABI}
+OUTPUT_PATH=${WORK_PATH}/openssl_3.2.1_${ANDROID_TARGET_ABI}
 
 # identify which openssl version we require
 OPENSSL_VERSION="${OPENSSL_VERSION:-3.1.4}"
