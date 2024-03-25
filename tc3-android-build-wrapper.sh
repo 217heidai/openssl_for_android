@@ -5,7 +5,7 @@
 the_log=/tmp/build_openssl_android.log
 echo 'build_openssl_android: Start...' | tee "$the_log"
 echo '' | tee -a "$the_log"
-first_flag=1
+first_flag=0
 for i in armeabi-v7a arm64-v8a x86 x86_64 ; do
   if [ x"$first_flag" = x1 ] ; then
     echo "***$i: clean" | tee -a "$the_log"
