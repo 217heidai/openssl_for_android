@@ -1,0 +1,3 @@
+# ignore all generated files
+openssl-*
+.DS_Store
