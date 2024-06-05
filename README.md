@@ -1,5 +1,5 @@
 # OpenSSL for Android
-Automatically compile static OpenSSL(3.2.*) library for Android by Github Actions.
+Automatically compile static OpenSSL library for Android by Github Actions.
 
 ## Android
 `armeabi`、`mips`、`mips64` targets are no longer supported with NDK R17+.
@@ -14,6 +14,7 @@ Automatically compile static OpenSSL(3.2.*) library for Android by Github Action
 ## ChangeLog
 | Date      | Content                                                              |
 |-----------|----------------------------------------------------------------------|
+| 2024.06.05 | OpenSSL 3.3.1 |
 | 2024.04.10 | OpenSSL 3.3.0 |
 | 2024.02.01 | OpenSSL 3.2.1 |
 | 2023.11.24 | OpenSSL 3.2.0 |

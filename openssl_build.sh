@@ -2,10 +2,10 @@
 
 WORK_PATH=$(cd "$(dirname "$0")";pwd)
 ANDROID_NDK_PATH=${WORK_PATH}/android-ndk-r20b
-OPENSSL_SOURCES_PATH=${WORK_PATH}/openssl-3.3.0
+OPENSSL_SOURCES_PATH=${WORK_PATH}/openssl-3.3.1
 ANDROID_TARGET_API=$1
 ANDROID_TARGET_ABI=$2
-OUTPUT_PATH=${WORK_PATH}/openssl_3.3.0_${ANDROID_TARGET_ABI}
+OUTPUT_PATH=${WORK_PATH}/openssl_3.3.1_${ANDROID_TARGET_ABI}
 
 OPENSSL_TMP_FOLDER=/tmp/openssl_${ANDROID_TARGET_ABI}
 mkdir -p ${OPENSSL_TMP_FOLDER}
@@ -18,6 +18,7 @@ function build_library {
     rm -rf ${OUTPUT_PATH}/bin
     rm -rf ${OUTPUT_PATH}/share
     rm -rf ${OUTPUT_PATH}/ssl
+    rm -rf ${OUTPUT_PATH}/lib/cmake
     rm -rf ${OUTPUT_PATH}/lib/engines*
     rm -rf ${OUTPUT_PATH}/lib/pkgconfig
     rm -rf ${OUTPUT_PATH}/lib/ossl-modules
