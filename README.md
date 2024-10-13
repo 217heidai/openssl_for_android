@@ -1,6 +1,8 @@
 # OpenSSL for Android
 Automatically compile static OpenSSL library for Android by Github Actions.
 
+Added `-fPIC` to fix linking error.
+
 ## Android
 `armeabi`、`mips`、`mips64` targets are no longer supported with NDK R17+.
 * [ ] armeabi
