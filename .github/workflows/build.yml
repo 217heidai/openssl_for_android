@@ -19,10 +19,10 @@ jobs:
       fail-fast: false
       matrix:
         info:
-          - '{ "ANDROID_API": "21",  "ANDROID_ABI": "armeabi-v7a",  "GCC_VERSION": "4.9" }'
-          - '{ "ANDROID_API": "21",  "ANDROID_ABI": "arm64-v8a",    "GCC_VERSION": "4.9" }'
-          - '{ "ANDROID_API": "21",  "ANDROID_ABI": "x86",          "GCC_VERSION": "4.9" }'
-          - '{ "ANDROID_API": "21",  "ANDROID_ABI": "x86_64",       "GCC_VERSION": "4.9" }'
+          - '{ "ANDROID_TARGET_API": "21",  "ANDROID_TARGET_ABI": "armeabi-v7a"}'
+          - '{ "ANDROID_TARGET_API": "21",  "ANDROID_TARGET_ABI": "arm64-v8a"}'
+          - '{ "ANDROID_TARGET_API": "21",  "ANDROID_TARGET_ABI": "x86"}'
+          - '{ "ANDROID_TARGET_API": "21",  "ANDROID_TARGET_ABI": "x86_64"}'
     
     steps:
       - name: Checkout
@@ -52,13 +52,13 @@ jobs:
         if: steps.download_ndk.outputs.status == 'success' && steps.download_openssl.outputs.status == 'success' && !cancelled()
         run: |
           mkdir build
-          bash ./openssl_build.sh ${{ fromJSON(matrix.info).ANDROID_API }} ${{ fromJSON(matrix.info).ANDROID_ABI }} ${{ fromJSON(matrix.info).GCC_VERSION }}
+          bash ./openssl_build.sh ${{ fromJSON(matrix.info).ANDROID_TARGET_API }} ${{ fromJSON(matrix.info).ANDROID_TARGET_ABI }} ${{env.OPENSSL_VERSION}} ${{env.ANDROID_NDK_VERSION}}
           echo "::set-output name=status::success"
 
       - name: Generate release tag
         id: tag
         run: |
-          tar -zcvf OpenSSL_${{env.OPENSSL_VERSION}}_${{ fromJSON(matrix.info).ANDROID_ABI }}.tar.gz openssl_${{env.OPENSSL_VERSION}}_${{ fromJSON(matrix.info).ANDROID_ABI }}
+          tar -zcvf OpenSSL_${{env.OPENSSL_VERSION}}_${{ fromJSON(matrix.info).ANDROID_TARGET_ABI }}.tar.gz openssl_${{env.OPENSSL_VERSION}}_${{ fromJSON(matrix.info).ANDROID_TARGET_ABI }}
           echo "::set-output name=release_tag::${{env.OPENSSL_VERSION}}"
           echo "::set-output name=status::success"
       
@@ -69,7 +69,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.tag.outputs.release_tag }}
-          files: ${{env.WORK_PATH}}/OpenSSL_${{env.OPENSSL_VERSION}}_${{ fromJSON(matrix.info).ANDROID_ABI }}.tar.gz
+          files: ${{env.WORK_PATH}}/OpenSSL_${{env.OPENSSL_VERSION}}_${{ fromJSON(matrix.info).ANDROID_TARGET_ABI }}.tar.gz
 
 
   Delete_Workflow:
