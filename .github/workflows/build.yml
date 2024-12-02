@@ -1,33 +1,34 @@
-# This is a basic workflow to help you get started with Actions
+name: Compile OpenSSL For Android
 
-name: Compile x86
-
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
+  workflow_dispatch:
   push:
     branches: [ master ]
 
 env:
-  ANDROID_ABI: x86
   OPENSSL_VERSION: 3.4.0
   ANDROID_NDK_VERSION: r20b
   WORK_PATH: /home/runner/work/openssl_for_android/openssl_for_android
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  Compile_OpenSSL_for_Android_x86:
-    name: Compile x86
-    # The type of runner that the job will run on
+  Compile_OpenSSL_for_Android:
+    name: Compile OpenSSL
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    strategy:
+      fail-fast: false
+      matrix:
+        info:
+          - '{ "ANDROID_API": "21",  "ANDROID_ABI": "armeabi-v7a",  "GCC_VERSION": "4.9" }'
+          - '{ "ANDROID_API": "21",  "ANDROID_ABI": "arm64-v8a",    "GCC_VERSION": "4.9" }'
+          - '{ "ANDROID_API": "21",  "ANDROID_ABI": "x86",          "GCC_VERSION": "4.9" }'
+          - '{ "ANDROID_API": "21",  "ANDROID_ABI": "x86_64",       "GCC_VERSION": "4.9" }'
+    
     steps:
-      # Checks-out your repository under $env.WORK_PATH, so your job can access it
-      - uses: actions/checkout@main
+      - name: Checkout
+        uses: actions/checkout@main
 
-      - name: Install aria2
+      - name: Install Aria2
         run: |
           sudo apt -yqq update
           sudo apt install -yqq aria2
@@ -51,13 +52,13 @@ jobs:
         if: steps.download_ndk.outputs.status == 'success' && steps.download_openssl.outputs.status == 'success' && !cancelled()
         run: |
           mkdir build
-          bash ./openssl_build_${{env.ANDROID_ABI}}.sh
+          bash ./openssl_build.sh ${{ fromJSON(matrix.info).ANDROID_API }} ${{ fromJSON(matrix.info).ANDROID_ABI }} ${{ fromJSON(matrix.info).GCC_VERSION }}
           echo "::set-output name=status::success"
 
       - name: Generate release tag
         id: tag
         run: |
-          tar -zcvf OpenSSL_${{env.OPENSSL_VERSION}}_${{env.ANDROID_ABI}}.tar.gz openssl_${{env.OPENSSL_VERSION}}_${{env.ANDROID_ABI}}
+          tar -zcvf OpenSSL_${{env.OPENSSL_VERSION}}_${{ fromJSON(matrix.info).ANDROID_ABI }}.tar.gz openssl_${{env.OPENSSL_VERSION}}_${{ fromJSON(matrix.info).ANDROID_ABI }}
           echo "::set-output name=release_tag::${{env.OPENSSL_VERSION}}"
           echo "::set-output name=status::success"
       
@@ -68,8 +69,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.tag.outputs.release_tag }}
-          files: ${{env.WORK_PATH}}/OpenSSL_${{env.OPENSSL_VERSION}}_${{env.ANDROID_ABI}}.tar.gz
+          files: ${{env.WORK_PATH}}/OpenSSL_${{env.OPENSSL_VERSION}}_${{ fromJSON(matrix.info).ANDROID_ABI }}.tar.gz
 
+
+  Delete_Workflow:
+    needs: [ Compile_OpenSSL_for_Android ]
+    runs-on: ubuntu-latest
+    steps:
       - name: Delete workflow runs
         uses: Mattraks/delete-workflow-runs@main
         with:
