@@ -34,6 +34,7 @@ Output is placed in `/tmp/build_openssl_android.log`
 ## ChangeLog
 | Date      | Content                                                              |
 |-----------|----------------------------------------------------------------------|
+| 2024.04.10 | OpenSSL 3.3.0 |
 | 2024.02.01 | OpenSSL 3.2.1 |
 | 2023.11.24 | OpenSSL 3.2.0 |
 | 2023.10.25 | OpenSSL 3.1.4 |
