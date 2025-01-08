@@ -3,7 +3,7 @@
 # identify which openssl version we require
 OPENSSL_VERSION="${OPENSSL_VERSION:-3.2.1}"
 
-# modified by ABr
+# ABr: modifications
 WORK_PATH=$(cd "$(dirname "$0")";pwd)
 ANDROID_NDK_PATH=''
 OPENSSL_SOURCES_PATH=${WORK_PATH}/openssl-$OPENSSL_VERSION
@@ -11,7 +11,7 @@ ANDROID_TARGET_API=$1
 ANDROID_TARGET_ABI=$2
 OUTPUT_PATH=${WORK_PATH}/openssl_${OPENSSL_VERSION}_${ANDROID_TARGET_ABI}
 
-# caller may pass in target ABI and API
+# ABr: caller may pass in target ABI and API
 ANDROID_TARGET_ABI="${1:-arm64-v8a}" ; shift
 ANDROID_TARGET_API="${1:-default}" ; shift
 
