@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 ################################################################################
-#   Copyright 2021 217heidai@gmail.com
+#   Copyright 2021-2025 217heidai<217heidai@gmail.com>
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
