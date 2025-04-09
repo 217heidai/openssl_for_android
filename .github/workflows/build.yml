@@ -6,7 +6,7 @@ on:
     branches: [ master ]
 
 env:
-  OPENSSL_VERSION: 3.4.1
+  OPENSSL_VERSION: 3.5.0 
   ANDROID_NDK_VERSION: r20b
   WORK_PATH: /home/runner/work/openssl_for_android/openssl_for_android
 
