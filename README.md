@@ -5,13 +5,16 @@ Added `-fPIC` to fix linking error.
 
 ## Android
 `armeabi`、`mips`、`mips64` targets are no longer supported with NDK R17+.
-* [ ] armeabi
-* [x] armeabi-v7a
-* [x] arm64-v8a
-* [x] x86
-* [x] x86_64
-* [ ] mips
-* [ ] mips64
+|ABI|API|NDK|
+|:-|:-:|:-:|
+|armeabi|21|r16b|
+|armeabi-v7a|21|r27c|
+|arm64-v8a|21|r27c|
+|mips|21|r16b|
+|mips64|21|r16b|
+|riscv64|35|r27c|
+|x86|21|r27c|
+|x86_64|21|r27c|
 
 ## ChangeLog
 | Date      | Content                                                              |

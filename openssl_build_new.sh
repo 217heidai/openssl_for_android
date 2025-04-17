@@ -17,7 +17,7 @@
 ################################################################################
 
 ################################################################################
-#   build OpenSSL for Android armeabi mips mips64
+#   build OpenSSL for Android armeabi-v7a arm64-v8a x86 x86_64 riscv64
 #   support Linux and macOS
 ################################################################################
 
@@ -40,30 +40,24 @@ function build(){
     cd ${OPENSSL_PATH}
 
     export ANDROID_NDK_ROOT=${ANDROID_NDK_PATH}
+    if [ "$(uname)"=="Darwin" ]; then
+        export PATH=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/darwin-x86_64/bin:$PATH
+    else
+        export PATH=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
+    fi
     export CXXFLAGS="-fPIC -Os"
     export CPPFLAGS="-DANDROID -fPIC -Os"
 
-    if   [ "${ANDROID_TARGET_ABI}" == "armeabi" ]; then
-        if [ "$(uname)"=="Darwin" ]; then
-            export PATH=${ANDROID_NDK_HOME}/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin:$PATH
-        else
-            export PATH=${ANDROID_NDK_HOME}/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
-        fi
-        ./Configure android-arm    -D__ANDROID_API__=${ANDROID_TARGET_API} -static ${OPENSSL_OPTIONS} --prefix=${OPENSSL_OUTPUT}
-    elif [ "${ANDROID_TARGET_ABI}" == "mips"   ]; then
-        if [ "$(uname)"=="Darwin" ]; then
-            export PATH=${ANDROID_NDK_HOME}/toolchains/mipsel-linux-android-4.9/prebuilt/darwin-x86_64/bin:$PATH
-        else
-            export PATH=${ANDROID_NDK_HOME}/toolchains/mipsel-linux-android-4.9/prebuilt/linux-x86_64/bin:$PATH
-        fi
-        ./Configure android-mips   -D__ANDROID_API__=${ANDROID_TARGET_API} -static ${OPENSSL_OPTIONS} --prefix=${OPENSSL_OUTPUT}
-    elif [ "${ANDROID_TARGET_ABI}" == "mips64" ]; then
-        if [ "$(uname)"=="Darwin" ]; then
-            export PATH=${ANDROID_NDK_HOME}/toolchains/mips64el-linux-android-4.9/prebuilt/darwin-x86_64/bin:$PATH
-        else
-            export PATH=${ANDROID_NDK_HOME}/toolchains/mips64el-linux-android-4.9/prebuilt/linux-x86_64/bin:$PATH
-        fi
-        ./Configure android-mips64 -D__ANDROID_API__=${ANDROID_TARGET_API} -static ${OPENSSL_OPTIONS} --prefix=${OPENSSL_OUTPUT}
+    if   [ "${ANDROID_TARGET_ABI}" == "armeabi-v7a" ]; then
+        ./Configure android-arm     -D__ANDROID_API__=${ANDROID_TARGET_API} -static ${OPENSSL_OPTIONS} --prefix=${OPENSSL_OUTPUT}
+    elif [ "${ANDROID_TARGET_ABI}" == "arm64-v8a"   ]; then
+        ./Configure android-arm64   -D__ANDROID_API__=${ANDROID_TARGET_API} -static ${OPENSSL_OPTIONS} --prefix=${OPENSSL_OUTPUT}
+    elif [ "${ANDROID_TARGET_ABI}" == "x86"         ]; then
+        ./Configure android-x86     -D__ANDROID_API__=${ANDROID_TARGET_API} -static ${OPENSSL_OPTIONS} --prefix=${OPENSSL_OUTPUT}
+    elif [ "${ANDROID_TARGET_ABI}" == "x86_64"      ]; then
+        ./Configure android-x86_64  -D__ANDROID_API__=${ANDROID_TARGET_API} -static ${OPENSSL_OPTIONS} --prefix=${OPENSSL_OUTPUT}
+    elif [ "${ANDROID_TARGET_ABI}" == "riscv64"     ]; then
+        ./Configure android-riscv64 -D__ANDROID_API__=${ANDROID_TARGET_API} -static ${OPENSSL_OPTIONS} --prefix=${OPENSSL_OUTPUT}
     else
         echo "Unsupported target ABI: ${ANDROID_TARGET_ABI}"
         exit 1
