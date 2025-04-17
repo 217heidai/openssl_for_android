@@ -40,7 +40,7 @@ function build(){
     cd ${OPENSSL_PATH}
 
     export ANDROID_NDK_ROOT=${ANDROID_NDK_PATH}
-    if [ "$(uname)"=="Darwin" ]; then
+    if [ "$(uname -s)"=="Darwin" ]; then
         export PATH=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/darwin-x86_64/bin:$PATH
     else
         export PATH=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
@@ -63,7 +63,7 @@ function build(){
         exit 1
     fi
 
-    if [ "$(uname)"=="Darwin" ]; then
+    if [ "$(uname -s)"=="Darwin" ]; then
         make -j$(sysctl -n hw.logicalcpu)
     else
         make -j$(nproc)
