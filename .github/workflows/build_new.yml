@@ -1,4 +1,4 @@
-name: Compile OpenSSL For Android
+name: Compile OpenSSL For Android New
 
 on:
   workflow_dispatch:
@@ -18,9 +18,11 @@ jobs:
       fail-fast: false
       matrix:
         info:
-          - '{ "ANDROID_TARGET_ABI": "armeabi",  "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r16b"}'
-          - '{ "ANDROID_TARGET_ABI": "mips",     "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r16b"}'
-          - '{ "ANDROID_TARGET_ABI": "mips64",   "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r16b"}'
+          - '{ "ANDROID_TARGET_ABI": "armeabi-v7a", "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
+          - '{ "ANDROID_TARGET_ABI": "arm64-v8a",   "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
+          - '{ "ANDROID_TARGET_ABI": "riscv64",     "ANDROID_TARGET_API": "35",  "ANDROID_NDK": "r27c"}'
+          - '{ "ANDROID_TARGET_ABI": "x86",         "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
+          - '{ "ANDROID_TARGET_ABI": "x86_64",      "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
     
     steps:
       - name: Checkout
@@ -34,7 +36,7 @@ jobs:
       - name: Download Android NDK
         id: download_ndk
         run: |
-          aria2c https://dl.google.com/android/repository/android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}-linux-x86_64.zip
+          aria2c https://dl.google.com/android/repository/android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}-linux.zip
           unzip android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}-linux-x86_64.zip
           echo "::set-output name=status::success"
 
@@ -49,7 +51,7 @@ jobs:
         id: compile
         if: steps.download_ndk.outputs.status == 'success' && steps.download_openssl.outputs.status == 'success' && !cancelled()
         run: |
-          bash ./openssl_build.sh ${{fromJSON(matrix.info).ANDROID_TARGET_API}} ${{fromJSON(matrix.info).ANDROID_TARGET_ABI}} ${{env.OPENSSL_VERSION}} ${{fromJSON(matrix.info).ANDROID_NDK}}
+          bash ./openssl_build_new.sh ${{fromJSON(matrix.info).ANDROID_TARGET_API}} ${{fromJSON(matrix.info).ANDROID_TARGET_ABI}} ${{env.OPENSSL_VERSION}} ${{fromJSON(matrix.info).ANDROID_NDK}}
           echo "::set-output name=status::success"
 
       - name: Generate release tag
