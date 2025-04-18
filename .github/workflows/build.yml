@@ -12,7 +12,7 @@ env:
 jobs:
   Compile_OpenSSL_for_Android:
     name: Compile OpenSSL
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
