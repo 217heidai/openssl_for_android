@@ -30,8 +30,7 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get -yqq update
-          sudo apt-get install -yqq libncurses5:i386
-          sudo apt-get install -yqq libncurses5-dev libncurses5
+          sudo apt-get install -yqq libncurses5-dev:i386
           sudo apt-get install -yqq aria2
       
       - name: Download Android NDK
