@@ -33,6 +33,14 @@ OPENSSL_PATH=${WORK_PATH}/openssl-${OPENSSL_VERSION}
 OUTPUT_PATH=${WORK_PATH}/openssl_${OPENSSL_VERSION}_${ANDROID_TARGET_ABI}
 OPENSSL_OPTIONS="no-apps no-asm no-docs no-engine no-gost no-legacy no-shared no-ssl no-tests no-zlib"
 
+if [ "$(uname -s)" == "Darwin" ]; then
+    echo "Build on macOS..."
+    PLATFORM="darwin"
+    export alias nproc="sysctl -n hw.logicalcpu"
+else
+    echo "Build on Linux..."
+    PLATFORM="linux"
+fi
 
 function build(){
     mkdir ${OUTPUT_PATH}
@@ -40,40 +48,25 @@ function build(){
     cd ${OPENSSL_PATH}
 
     export ANDROID_NDK_ROOT=${ANDROID_NDK_PATH}
+    export PATH=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${PLATFORM}-x86_64/bin:$PATH
     export CXXFLAGS="-fPIC -Os"
     export CPPFLAGS="-DANDROID -fPIC -Os"
 
     if   [ "${ANDROID_TARGET_ABI}" == "armeabi" ]; then
-        if [ "$(uname -s)"=="Darwin" ]; then
-            export PATH=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/darwin-x86_64/bin:${ANDROID_NDK_HOME}/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin:$PATH
-        else
-            export PATH=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_HOME}/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
-        fi
+        export PATH=${ANDROID_NDK_ROOT}/toolchains/arm-linux-androideabi-4.9/prebuilt/${PLATFORM}-x86_64/bin:$PATH
         ./Configure android-arm    -D__ANDROID_API__=${ANDROID_TARGET_API} -static ${OPENSSL_OPTIONS} --prefix=${OUTPUT_PATH}
     elif [ "${ANDROID_TARGET_ABI}" == "mips"   ]; then
-        if [ "$(uname -s)"=="Darwin" ]; then
-            export PATH=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/darwin-x86_64/bin:${ANDROID_NDK_HOME}/toolchains/mipsel-linux-android-4.9/prebuilt/darwin-x86_64/bin:$PATH
-        else
-            export PATH=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_HOME}/toolchains/mipsel-linux-android-4.9/prebuilt/linux-x86_64/bin:$PATH
-        fi
+        export PATH=${ANDROID_NDK_ROOT}/toolchains/mipsel-linux-android-4.9/prebuilt/${PLATFORM}-x86_64/bin:$PATH
         ./Configure android-mips   -D__ANDROID_API__=${ANDROID_TARGET_API} -static ${OPENSSL_OPTIONS} --prefix=${OUTPUT_PATH}
     elif [ "${ANDROID_TARGET_ABI}" == "mips64" ]; then
-        if [ "$(uname -s)"=="Darwin" ]; then
-            export PATH=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/darwin-x86_64/bin:${ANDROID_NDK_HOME}/toolchains/mips64el-linux-android-4.9/prebuilt/darwin-x86_64/bin:$PATH
-        else
-            export PATH=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin:${ANDROID_NDK_HOME}/toolchains/mips64el-linux-android-4.9/prebuilt/linux-x86_64/bin:$PATH
-        fi
+        export PATH=${ANDROID_NDK_ROOT}/toolchains/mips64el-linux-android-4.9/prebuilt/${PLATFORM}-x86_64/bin:$PATH
         ./Configure android-mips64 -D__ANDROID_API__=${ANDROID_TARGET_API} -static ${OPENSSL_OPTIONS} --prefix=${OUTPUT_PATH}
     else
         echo "Unsupported target ABI: ${ANDROID_TARGET_ABI}"
         exit 1
     fi
 
-    if [ "$(uname -s)"=="Darwin" ]; then
-        make -j$(sysctl -n hw.logicalcpu)
-    else
-        make -j$(nproc)
-    fi
+    make -j$(nproc)
     make install
 
     echo "Build completed! Check output libraries in ${OUTPUT_PATH}"

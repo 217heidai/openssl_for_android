@@ -33,6 +33,14 @@ OPENSSL_PATH=${WORK_PATH}/openssl-${OPENSSL_VERSION}
 OUTPUT_PATH=${WORK_PATH}/openssl_${OPENSSL_VERSION}_${ANDROID_TARGET_ABI}
 OPENSSL_OPTIONS="no-apps no-asm no-docs no-engine no-gost no-legacy no-shared no-ssl no-tests no-zlib"
 
+if [ "$(uname -s)" == "Darwin" ]; then
+    echo "Build on macOS..."
+    PLATFORM="darwin"
+    export alias nproc="sysctl -n hw.logicalcpu"
+else
+    echo "Build on Linux..."
+    PLATFORM="linux"
+fi
 
 function build(){
     mkdir ${OUTPUT_PATH}
@@ -40,11 +48,7 @@ function build(){
     cd ${OPENSSL_PATH}
 
     export ANDROID_NDK_ROOT=${ANDROID_NDK_PATH}
-    if [ "$(uname -s)"=="Darwin" ]; then
-        export PATH=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/darwin-x86_64/bin:$PATH
-    else
-        export PATH=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
-    fi
+    export PATH=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${PLATFORM}-x86_64/bin:$PATH
     export CXXFLAGS="-fPIC -Os"
     export CPPFLAGS="-DANDROID -fPIC -Os"
 
@@ -63,11 +67,7 @@ function build(){
         exit 1
     fi
 
-    if [ "$(uname -s)"=="Darwin" ]; then
-        make -j$(sysctl -n hw.logicalcpu)
-    else
-        make -j$(nproc)
-    fi
+    make -j$(nproc)
     make install
 
     echo "Build completed! Check output libraries in ${OUTPUT_PATH}"
