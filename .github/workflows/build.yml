@@ -28,7 +28,10 @@ jobs:
 
       - name: Install Aria2
         run: |
+          sudo dpkg --add-architecture i386
           sudo apt -yqq update
+          sudo apt install -yqq libncurses5:i386
+          sudo apt install -yqq libncurses5-dev libncurses5
           sudo apt install -yqq aria2
       
       - name: Download Android NDK
