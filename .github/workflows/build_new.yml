@@ -69,58 +69,59 @@ jobs:
         with:
           tag_name: ${{steps.tag.outputs.release_tag}}
           files: ${{env.WORK_PATH}}/OpenSSL_${{env.OPENSSL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}.tar.gz
-    Compile_cURL_for_Android:
-    name: Compile cURL
-    runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        info:
-          - '{ "ANDROID_TARGET_ABI": "armeabi-v7a", "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
-          - '{ "ANDROID_TARGET_ABI": "arm64-v8a",   "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
-          - '{ "ANDROID_TARGET_ABI": "riscv64",     "ANDROID_TARGET_API": "35",  "ANDROID_NDK": "r27c"}'
-          - '{ "ANDROID_TARGET_ABI": "x86",         "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
-          - '{ "ANDROID_TARGET_ABI": "x86_64",      "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
-
-    env:
-      CURL_VERSION: 8.7.1
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@main
-
-      - name: Install Aria2 and Build Essentials
-        run: |
-          sudo apt -yqq update
-          sudo apt install -yqq aria2 autoconf automake libtool pkg-config
-
-      - name: Download Android NDK
-        run: |
-          aria2c -o android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}.zip https://dl.google.com/android/repository/android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}-linux.zip
-          unzip android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}.zip
-
-      - name: Download cURL
-        run: |
-          aria2c -o curl-${{env.CURL_VERSION}}.tar.gz https://curl.se/download/curl-${{env.CURL_VERSION}}.tar.gz
-          tar -xzf curl-${{env.CURL_VERSION}}.tar.gz
-
-      - name: Compile cURL
-        run: |
-          bash ./curl_build.sh ${{fromJSON(matrix.info).ANDROID_TARGET_API}} ${{fromJSON(matrix.info).ANDROID_TARGET_ABI}} ${{env.CURL_VERSION}} ${{fromJSON(matrix.info).ANDROID_NDK}}
-
-      - name: Package Output
-        run: |
-          tar -zcvf curl_${{env.CURL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}.tar.gz curl_${{env.CURL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}
-
-      - name: Upload to GitHub Release
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        with:
-          tag_name: curl-${{env.CURL_VERSION}}
-          files: curl_${{env.CURL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}.tar.gz
-
+  
+  Compile_cURL_for_Android:
+      name: Compile cURL
+      runs-on: ubuntu-latest
+  
+      strategy:
+        fail-fast: false
+        matrix:
+          info:
+            - '{ "ANDROID_TARGET_ABI": "armeabi-v7a", "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
+            - '{ "ANDROID_TARGET_ABI": "arm64-v8a",   "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
+            - '{ "ANDROID_TARGET_ABI": "riscv64",     "ANDROID_TARGET_API": "35",  "ANDROID_NDK": "r27c"}'
+            - '{ "ANDROID_TARGET_ABI": "x86",         "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
+            - '{ "ANDROID_TARGET_ABI": "x86_64",      "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
+  
+      env:
+        CURL_VERSION: 8.7.1
+  
+      steps:
+        - name: Checkout
+          uses: actions/checkout@main
+  
+        - name: Install Aria2 and Build Essentials
+          run: |
+            sudo apt -yqq update
+            sudo apt install -yqq aria2 autoconf automake libtool pkg-config
+  
+        - name: Download Android NDK
+          run: |
+            aria2c -o android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}.zip https://dl.google.com/android/repository/android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}-linux.zip
+            unzip android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}.zip
+  
+        - name: Download cURL
+          run: |
+            aria2c -o curl-${{env.CURL_VERSION}}.tar.gz https://curl.se/download/curl-${{env.CURL_VERSION}}.tar.gz
+            tar -xzf curl-${{env.CURL_VERSION}}.tar.gz
+  
+        - name: Compile cURL
+          run: |
+            bash ./curl_build.sh ${{fromJSON(matrix.info).ANDROID_TARGET_API}} ${{fromJSON(matrix.info).ANDROID_TARGET_ABI}} ${{env.CURL_VERSION}} ${{fromJSON(matrix.info).ANDROID_NDK}}
+  
+        - name: Package Output
+          run: |
+            tar -zcvf curl_${{env.CURL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}.tar.gz curl_${{env.CURL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}
+  
+        - name: Upload to GitHub Release
+          uses: softprops/action-gh-release@v1
+          env:
+            GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          with:
+            tag_name: curl-${{env.CURL_VERSION}}
+            files: curl_${{env.CURL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}.tar.gz
+  
 
   Delete_Workflow:
     needs: [ Compile_OpenSSL_for_Android ]
