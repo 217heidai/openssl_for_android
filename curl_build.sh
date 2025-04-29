@@ -76,7 +76,6 @@ function build() {
 
     ./configure \
         --host=${TARGET_HOST} \
-        --with-ssl=${OPENSSL_SYSROOT} \
         --disable-shared \
         --enable-static \
         --disable-ldap \
