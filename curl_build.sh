@@ -76,6 +76,8 @@ function build() {
 
     ./configure \
         --host=${TARGET_HOST} \
+        --build=$(uname -m)-linux-gnu \
+        --with-ssl=${OPENSSL_SYSROOT} \
         --disable-shared \
         --enable-static \
         --disable-ldap \
@@ -84,7 +86,12 @@ function build() {
         --disable-threaded-resolver \
         --disable-unix-sockets \
         --without-zlib \
-        --prefix=${OUTPUT_PATH}
+        --prefix=${OUTPUT_PATH} \
+        CC=${CC} \
+        AR=${AR} \
+        RANLIB=${RANLIB} \
+        STRIP=${STRIP}
+
 
     make -j$(nproc)
     make install
