@@ -51,7 +51,7 @@ jobs:
       - name: Download OpenSSL
         run: |
           aria2c -q -o openssl-${{ env.OPENSSL_VERSION }}.tar.gz \
-            https://github.com/openssl/openssl/releases/download/openssl-${{ env.OPENSSL_VERSION }}/openssl-${{ env.OPENSL_VERSION }}.tar.gz
+            https://github.com/openssl/openssl/releases/download/openssl-${{ env.OPENSSL_VERSION }}/openssl-${{ env.OPENSSL_VERSION }}.tar.gz
           tar xf openssl-${{ env.OPENSSL_VERSION }}.tar.gz
 
       - name: Build OpenSSL
