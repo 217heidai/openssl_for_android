@@ -1,4 +1,4 @@
-name: Compile OpenSSL For Android New
+name: Android Build and Release
 
 on:
   workflow_dispatch:
@@ -7,127 +7,148 @@ on:
 
 env:
   OPENSSL_VERSION: 3.5.0
-  WORK_PATH: /home/runner/work/openssl_for_android/openssl_for_android
+  CURL_VERSION: 8.7.1
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   Compile_OpenSSL_for_Android:
-    name: Compile OpenSSL
+    name: Compile OpenSSL ${{ matrix.ANDROID_TARGET_ABI }}
     runs-on: ubuntu-latest
-
     strategy:
       fail-fast: false
       matrix:
-        info:
-          - '{ "ANDROID_TARGET_ABI": "armeabi-v7a", "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
-          - '{ "ANDROID_TARGET_ABI": "arm64-v8a",   "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
-          - '{ "ANDROID_TARGET_ABI": "riscv64",     "ANDROID_TARGET_API": "35",  "ANDROID_NDK": "r27c"}'
-          - '{ "ANDROID_TARGET_ABI": "x86",         "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
-          - '{ "ANDROID_TARGET_ABI": "x86_64",      "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
-    
-    steps:
-      - name: Checkout
-        uses: actions/checkout@main
+        include:
+          - ANDROID_TARGET_ABI: armeabi-v7a
+            ANDROID_TARGET_API: "21"
+            ANDROID_NDK: r27c
+          - ANDROID_TARGET_ABI: arm64-v8a
+            ANDROID_TARGET_API: "21"
+            ANDROID_NDK: r27c
+          - ANDROID_TARGET_ABI: riscv64
+            ANDROID_TARGET_API: "35"
+            ANDROID_NDK: r27c
+          - ANDROID_TARGET_ABI: x86
+            ANDROID_TARGET_API: "21"
+            ANDROID_NDK: r27c
+          - ANDROID_TARGET_ABI: x86_64
+            ANDROID_TARGET_API: "21"
+            ANDROID_NDK: r27c
 
-      - name: Install Aria2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install prerequisites
         run: |
-          sudo apt -yqq update
-          sudo apt install -yqq aria2
-      
+          sudo apt-get update -qq
+          sudo apt-get install -qq aria2
+
       - name: Download Android NDK
-        id: download_ndk
         run: |
-          aria2c -o android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}.zip https://dl.google.com/android/repository/android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}-linux.zip
-          unzip android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}.zip
-          echo "::set-output name=status::success"
+          aria2c -q -o android-ndk-${{ matrix.ANDROID_NDK }}.zip \
+            https://dl.google.com/android/repository/android-ndk-${{ matrix.ANDROID_NDK }}-linux.zip
+          unzip -q android-ndk-${{ matrix.ANDROID_NDK }}.zip
 
       - name: Download OpenSSL
-        id: download_openssl
         run: |
-          aria2c -o openssl-${{env.OPENSSL_VERSION}}.tar.gz https://github.com/openssl/openssl/releases/download/openssl-${{env.OPENSSL_VERSION}}/openssl-${{env.OPENSSL_VERSION}}.tar.gz
-          tar -zxvf openssl-${{env.OPENSSL_VERSION}}.tar.gz
-          echo "::set-output name=status::success"
+          aria2c -q -o openssl-${{ env.OPENSSL_VERSION }}.tar.gz \
+            https://github.com/openssl/openssl/releases/download/openssl-${{ env.OPENSSL_VERSION }}/openssl-${{ env.OPENSSL_VERSION }}.tar.gz
+          tar xf openssl-${{ env.OPENSSL_VERSION }}.tar.gz
 
-      - name: Compile
-        id: compile
-        if: steps.download_ndk.outputs.status == 'success' && steps.download_openssl.outputs.status == 'success' && !cancelled()
+      - name: Build OpenSSL
         run: |
-          bash ./openssl_build_new.sh ${{fromJSON(matrix.info).ANDROID_TARGET_API}} ${{fromJSON(matrix.info).ANDROID_TARGET_ABI}} ${{env.OPENSSL_VERSION}} ${{fromJSON(matrix.info).ANDROID_NDK}}
-          echo "::set-output name=status::success"
+          bash openssl_build_new.sh \
+            ${{ matrix.ANDROID_TARGET_API }} \
+            ${{ matrix.ANDROID_TARGET_ABI }} \
+            ${{ env.OPENSSL_VERSION }} \
+            ${{ matrix.ANDROID_NDK }}
 
-      - name: Generate release tag
-        id: tag
+      - name: Package artifact
+        id: package_openssl
         run: |
-          tar -zcvf OpenSSL_${{env.OPENSSL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}.tar.gz openssl_${{env.OPENSSL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}
-          echo "::set-output name=release_tag::${{env.OPENSSL_VERSION}}"
-          echo "::set-output name=status::success"
-      
-      - name: Upload firmware to release
-        if: steps.tag.outputs.status == 'success' && !cancelled()
+          tar -C openssl_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }} \
+            -czf OpenSSL_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz .
+          echo "RELEASE_TAG=openssl-${{ env.OPENSSL_VERSION }}-${{ matrix.ANDROID_TARGET_ABI }}" >> $GITHUB_OUTPUT
+
+      - name: Release OpenSSL build
         uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
-          tag_name: ${{steps.tag.outputs.release_tag}}
-          files: ${{env.WORK_PATH}}/OpenSSL_${{env.OPENSSL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}.tar.gz
-  
+          tag_name: ${{ steps.package_openssl.outputs.RELEASE_TAG }}
+          files: OpenSSL_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz
+
   Compile_cURL_for_Android:
-      name: Compile cURL
-      runs-on: ubuntu-latest
-  
-      strategy:
-        fail-fast: false
-        matrix:
-          info:
-            - '{ "ANDROID_TARGET_ABI": "armeabi-v7a", "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
-            - '{ "ANDROID_TARGET_ABI": "arm64-v8a",   "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
-            - '{ "ANDROID_TARGET_ABI": "riscv64",     "ANDROID_TARGET_API": "35",  "ANDROID_NDK": "r27c"}'
-            - '{ "ANDROID_TARGET_ABI": "x86",         "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
-            - '{ "ANDROID_TARGET_ABI": "x86_64",      "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
-  
-      env:
-        CURL_VERSION: 8.7.1
-  
-      steps:
-        - name: Checkout
-          uses: actions/checkout@main
-  
-        - name: Install Aria2 and Build Essentials
-          run: |
-            sudo apt -yqq update
-            sudo apt install -yqq aria2 autoconf automake libtool pkg-config
-  
-        - name: Download Android NDK
-          run: |
-            aria2c -o android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}.zip https://dl.google.com/android/repository/android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}-linux.zip
-            unzip android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}.zip
-  
-        - name: Download cURL
-          run: |
-            aria2c -o curl-${{env.CURL_VERSION}}.tar.gz https://curl.se/download/curl-${{env.CURL_VERSION}}.tar.gz
-            tar -xzf curl-${{env.CURL_VERSION}}.tar.gz
-  
-        - name: Compile cURL
-          run: |
-            bash ./curl_build.sh ${{fromJSON(matrix.info).ANDROID_TARGET_API}} ${{fromJSON(matrix.info).ANDROID_TARGET_ABI}} ${{env.CURL_VERSION}} ${{fromJSON(matrix.info).ANDROID_NDK}}
-  
-        - name: Package Output
-          run: |
-            tar -zcvf curl_${{env.CURL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}.tar.gz curl_${{env.CURL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}
-  
-        - name: Upload to GitHub Release
-          uses: softprops/action-gh-release@v1
-          env:
-            GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          with:
-            tag_name: curl-${{env.CURL_VERSION}}
-            files: curl_${{env.CURL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}.tar.gz
-  
+    needs: Compile_OpenSSL_for_Android
+    name: Compile cURL ${{ matrix.ANDROID_TARGET_ABI }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ANDROID_TARGET_ABI: armeabi-v7a
+            ANDROID_TARGET_API: "21"
+            ANDROID_NDK: r27c
+          - ANDROID_TARGET_ABI: arm64-v8a
+            ANDROID_TARGET_API: "21"
+            ANDROID_NDK: r27c
+          - ANDROID_TARGET_ABI: riscv64
+            ANDROID_TARGET_API: "35"
+            ANDROID_NDK: r27c
+          - ANDROID_TARGET_ABI: x86
+            ANDROID_TARGET_API: "21"
+            ANDROID_NDK: r27c
+          - ANDROID_TARGET_ABI: x86_64
+            ANDROID_TARGET_API: "21"
+            ANDROID_NDK: r27c
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install prerequisites
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -qq aria2 autoconf automake libtool pkg-config
+
+      - name: Download Android NDK
+        run: |
+          aria2c -q -o android-ndk-${{ matrix.ANDROID_NDK }}.zip \
+            https://dl.google.com/android/repository/android-ndk-${{ matrix.ANDROID_NDK }}-linux.zip
+          unzip -q android-ndk-${{ matrix.ANDROID_NDK }}.zip
+
+      - name: Download cURL
+        run: |
+          aria2c -q -o curl-${{ env.CURL_VERSION }}.tar.gz \
+            https://curl.se/download/curl-${{ env.CURL_VERSION }}.tar.gz
+          tar xf curl-${{ env.CURL_VERSION }}.tar.gz
+
+      - name: Build cURL without SSL
+        run: |
+          bash curl_build.sh \
+            ${{ matrix.ANDROID_TARGET_API }} \
+            ${{ matrix.ANDROID_TARGET_ABI }} \
+            ${{ env.CURL_VERSION }} \
+            ${{ matrix.ANDROID_NDK }}
+
+      - name: Package artifact
+        id: package_curl
+        run: |
+          tar -C curl_${{ env.CURL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }} \
+            -czf curl_${{ env.CURL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz .
+          echo "RELEASE_TAG=curl-${{ env.CURL_VERSION }}-${{ matrix.ANDROID_TARGET_ABI }}" >> $GITHUB_OUTPUT
+
+      - name: Release cURL build
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.package_curl.outputs.RELEASE_TAG }}
+          files: curl_${{ env.CURL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz
 
   Delete_Workflow:
-    needs: [ Compile_OpenSSL_for_Android ]
+    needs:
+      - Compile_OpenSSL_for_Android
+      - Compile_cURL_for_Android
     runs-on: ubuntu-latest
     steps:
-      - name: Delete workflow runs
+      - name: Cleanup old runs
         uses: Mattraks/delete-workflow-runs@main
         with:
           retain_days: 0
