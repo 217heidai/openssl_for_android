@@ -1,5 +1,5 @@
-# OpenSSL for Android
-Automatically compile static OpenSSL library for Android by Github Actions.
+# OpenSSL / CURL for Android
+Automatically compile static OpenSSL and CURL library for Android by Github Actions.
 
 Added `-fPIC` to fix linking error.
 
@@ -19,6 +19,8 @@ Added `-fPIC` to fix linking error.
 ## ChangeLog
 | Date      | Content                                                              |
 |-----------|----------------------------------------------------------------------|
+| NOW EVERY NIGHT UTC 00:00 will autometically update to new version. |
+| 2025.04.25 | OpenSSL 3.5.0 + CURL 8.13.0 |
 | 2025.04.09 | OpenSSL 3.5.0 |
 | 2025.02.12 | OpenSSL 3.4.1 |
 | 2024.10.23 | OpenSSL 3.4.0 |
