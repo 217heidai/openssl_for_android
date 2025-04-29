@@ -2,17 +2,42 @@ name: Android Build and Release
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ master ]
+  schedule:
+    # daily at midnight UTC
+    - cron: '0 0 * * *'
 
+# get dynamic versions from upstream
 env:
-  OPENSSL_VERSION: 3.5.0
-  CURL_VERSION: 8.7.1
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 jobs:
+  get_versions:
+    name: Fetch Latest Versions
+    runs-on: ubuntu-latest
+    outputs:
+      openssl_version: ${{ steps.openssl.outputs.openssl_version }}
+      curl_version: ${{ steps.curl.outputs.curl_version }}
+    steps:
+      - name: Install jq and curl
+        run: sudo apt-get update -qq && sudo apt-get install -qq jq curl
+
+      - name: Get latest OpenSSL version
+        id: openssl
+        run: |
+          tag=$(curl -s https://api.github.com/repos/openssl/openssl/releases/latest | jq -r .tag_name)
+          version=${tag#openssl-}
+          version=${version#OpenSSL-}
+          echo "openssl_version=$version" >> $GITHUB_OUTPUT
+
+      - name: Get latest cURL version
+        id: curl
+        run: |
+          tag=$(curl -s https://api.github.com/repos/curl/curl/releases/latest | jq -r .tag_name)
+          version=${tag#curl-}
+          echo "curl_version=$version" >> $GITHUB_OUTPUT
+
   Compile_OpenSSL_for_Android:
     name: Compile OpenSSL ${{ matrix.ANDROID_TARGET_ABI }}
+    needs: get_versions
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -33,14 +58,14 @@ jobs:
           - ANDROID_TARGET_ABI: x86_64
             ANDROID_TARGET_API: "21"
             ANDROID_NDK: r27c
+    env:
+      OPENSSL_VERSION: ${{ needs.get_versions.outputs.openssl_version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Install prerequisites
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -qq aria2
+        run: sudo apt-get update -qq && sudo apt-get install -qq aria2
 
       - name: Download Android NDK
         run: |
@@ -74,8 +99,8 @@ jobs:
           path: OpenSSL_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz
 
   Compile_cURL_for_Android:
-    needs: Compile_OpenSSL_for_Android
     name: Compile cURL ${{ matrix.ANDROID_TARGET_ABI }}
+    needs: get_versions
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -96,14 +121,14 @@ jobs:
           - ANDROID_TARGET_ABI: x86_64
             ANDROID_TARGET_API: "21"
             ANDROID_NDK: r27c
+    env:
+      CURL_VERSION: ${{ needs.get_versions.outputs.curl_version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Install prerequisites
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -qq aria2 autoconf automake libtool pkg-config
+        run: sudo apt-get update -qq && sudo apt-get install -qq aria2 autoconf automake libtool pkg-config
 
       - name: Download Android NDK
         run: |
@@ -147,10 +172,16 @@ jobs:
         with:
           path: artifacts
 
+      - name: Set release date
+        id: date
+        run: |
+          echo "release_date=$(date -u +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
       - name: Create consolidated release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: release-v${{ env.OPENSSL_VERSION }}-c${{ env.CURL_VERSION }}
-          name: OpenSSL ${{ env.OPENSSL_VERSION }} & cURL ${{ env.CURL_VERSION }} Android Builds
+          tag_name: release-openssl${{ needs.get_versions.outputs.openssl_version }}-curl${{ needs.get_versions.outputs.curl_version }}
+          name: >-
+            OpenSSL ${{ needs.get_versions.outputs.openssl_version }} & cURL ${{ needs.get_versions.outputs.curl_version }} Android Builds
+            (Updated ${{ steps.date.outputs.release_date }})
           files: artifacts/**/*.tar.gz
-
