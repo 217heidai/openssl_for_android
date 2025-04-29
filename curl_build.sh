@@ -97,6 +97,7 @@ function build() {
         --disable-unix-sockets \
         --disable-proxy \
         --disable-ares \
+        --without-libpsl \
         --prefix=${OUTPUT_PATH} \
         CC=${CC} AR=${AR} RANLIB=${RANLIB} STRIP=${STRIP} \
         CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}"
