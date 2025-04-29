@@ -33,7 +33,7 @@ jobs:
       - name: Get latest cURL version
         id: curl
         run: |
-          tag=$(curl -s https://api.github.com/repos/curl/curl/releases/latest | jq -r .tag_name)
+          tag=curl-$(curl -s https://api.github.com/repos/curl/curl/releases/latest | jq -r .name)
           version=${tag#curl-}
           echo "curl_version=$version" >> $GITHUB_OUTPUT
 
