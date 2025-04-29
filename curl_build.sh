@@ -75,22 +75,12 @@ function build() {
     export PKG_CONFIG_PATH=${OPENSSL_SYSROOT}/lib/pkgconfig
 
     ./configure \
-        --host=${TARGET_HOST} \
-        --build=$(uname -m)-linux-gnu \
-        --with-ssl=${OPENSSL_SYSROOT} \
-        --disable-shared \
-        --enable-static \
-        --disable-ldap \
-        --disable-ldaps \
-        --disable-manual \
-        --disable-threaded-resolver \
-        --disable-unix-sockets \
-        --without-zlib \
-        --prefix=${OUTPUT_PATH} \
-        CC=${CC} \
-        AR=${AR} \
-        RANLIB=${RANLIB} \
-        STRIP=${STRIP}
+      --host=armv7a-linux-androideabi \
+      --disable-shared \
+      --enable-static \
+      --without-ssl \
+      --disable-ldap \
+      --prefix=$PWD/install
 
 
     make -j$(nproc)
