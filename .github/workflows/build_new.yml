@@ -33,7 +33,6 @@ jobs:
           - ANDROID_TARGET_ABI: x86_64
             ANDROID_TARGET_API: "21"
             ANDROID_NDK: r27c
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -63,18 +62,16 @@ jobs:
             ${{ env.OPENSSL_VERSION }} \
             ${{ matrix.ANDROID_NDK }}
 
-      - name: Package artifact
-        id: package_openssl
+      - name: Package OpenSSL artifact
         run: |
           tar -C openssl_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }} \
             -czf OpenSSL_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz .
-          echo "RELEASE_TAG=openssl-${{ env.OPENSSL_VERSION }}-${{ matrix.ANDROID_TARGET_ABI }}" >> $GITHUB_OUTPUT
 
-      - name: Release OpenSSL build
-        uses: softprops/action-gh-release@v1
+      - name: Upload OpenSSL artifact
+        uses: actions/upload-artifact@v3
         with:
-          tag_name: ${{ steps.package_openssl.outputs.RELEASE_TAG }}
-          files: OpenSSL_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz
+          name: OpenSSL-${{ matrix.ANDROID_TARGET_ABI }}
+          path: OpenSSL_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz
 
   Compile_cURL_for_Android:
     needs: Compile_OpenSSL_for_Android
@@ -99,7 +96,6 @@ jobs:
           - ANDROID_TARGET_ABI: x86_64
             ANDROID_TARGET_API: "21"
             ANDROID_NDK: r27c
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -129,27 +125,31 @@ jobs:
             ${{ env.CURL_VERSION }} \
             ${{ matrix.ANDROID_NDK }}
 
-      - name: Package artifact
-        id: package_curl
+      - name: Package cURL artifact
         run: |
           tar -C curl_${{ env.CURL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }} \
             -czf curl_${{ env.CURL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz .
-          echo "RELEASE_TAG=curl-${{ env.CURL_VERSION }}-${{ matrix.ANDROID_TARGET_ABI }}" >> $GITHUB_OUTPUT
 
-      - name: Release cURL build
-        uses: softprops/action-gh-release@v1
+      - name: Upload cURL artifact
+        uses: actions/upload-artifact@v3
         with:
-          tag_name: ${{ steps.package_curl.outputs.RELEASE_TAG }}
-          files: curl_${{ env.CURL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz
+          name: cURL-${{ matrix.ANDROID_TARGET_ABI }}
+          path: curl_${{ env.CURL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz
 
-  Delete_Workflow:
+  Publish_Release:
     needs:
       - Compile_OpenSSL_for_Android
       - Compile_cURL_for_Android
     runs-on: ubuntu-latest
     steps:
-      - name: Cleanup old runs
-        uses: Mattraks/delete-workflow-runs@main
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
         with:
-          retain_days: 0
-          keep_minimum_runs: 8
+          path: artifacts
+
+      - name: Create consolidated release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: release-v${{ env.OPENSSL_VERSION }}-c${{ env.CURL_VERSION }}
+          name: OpenSSL ${{ env.OPENSSL_VERSION }} & cURL ${{ env.CURL_VERSION }} Android Builds
+          files: artifacts/*.tar.gz
