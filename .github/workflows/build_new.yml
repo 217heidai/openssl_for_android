@@ -152,4 +152,5 @@ jobs:
         with:
           tag_name: release-v${{ env.OPENSSL_VERSION }}-c${{ env.CURL_VERSION }}
           name: OpenSSL ${{ env.OPENSSL_VERSION }} & cURL ${{ env.CURL_VERSION }} Android Builds
-          files: artifacts/*.tar.gz
+          files: artifacts/**/*.tar.gz
+
