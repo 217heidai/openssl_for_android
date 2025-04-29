@@ -51,7 +51,7 @@ jobs:
       - name: Download OpenSSL
         run: |
           aria2c -q -o openssl-${{ env.OPENSSL_VERSION }}.tar.gz \
-            https://github.com/openssl/openssl/releases/download/openssl-${{ env.OPENSSL_VERSION }}/openssl-${{ env.OPENSSL_VERSION }}.tar.gz
+            https://github.com/openssl/openssl/releases/download/openssl-${{ env.OPENSSL_VERSION }}/openssl-${{ env.OPENSL_VERSION }}.tar.gz
           tar xf openssl-${{ env.OPENSSL_VERSION }}.tar.gz
 
       - name: Build OpenSSL
@@ -68,7 +68,7 @@ jobs:
             -czf OpenSSL_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz .
 
       - name: Upload OpenSSL artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: OpenSSL-${{ matrix.ANDROID_TARGET_ABI }}
           path: OpenSSL_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz
@@ -131,7 +131,7 @@ jobs:
             -czf curl_${{ env.CURL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz .
 
       - name: Upload cURL artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cURL-${{ matrix.ANDROID_TARGET_ABI }}
           path: curl_${{ env.CURL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz
@@ -143,7 +143,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
