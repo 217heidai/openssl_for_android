@@ -197,37 +197,71 @@ jobs:
           # Create the organized directory structure
           mkdir -p Output/{curl,openssl}/{arm64-v8a,armeabi-v7a,x86,x86_64,riscv64}/{include,lib}
           
+          # Debug: List downloaded artifacts
+          find artifacts -type f | sort
+          
           # Extract OpenSSL artifacts
           for ABI in arm64-v8a armeabi-v7a x86 x86_64 riscv64; do
             if [ -f "artifacts/OpenSSL-${ABI}/OpenSSL_${{ needs.get_versions.outputs.openssl_version }}_${ABI}.tar.gz" ]; then
-              # Extract include and lib directories
-              mkdir -p tmp_openssl
-              tar -xzf "artifacts/OpenSSL-${ABI}/OpenSSL_${{ needs.get_versions.outputs.openssl_version }}_${ABI}.tar.gz" -C tmp_openssl
+              echo "Processing OpenSSL for ${ABI}..."
               
-              # Copy to organized structure
-              cp -r tmp_openssl/include/* "Output/openssl/${ABI}/include/"
-              cp -r tmp_openssl/lib/* "Output/openssl/${ABI}/lib/"
+              # Create temp directory for extraction
+              mkdir -p tmp_openssl_${ABI}
+              
+              # Extract to temp directory
+              tar -xzf "artifacts/OpenSSL-${ABI}/OpenSSL_${{ needs.get_versions.outputs.openssl_version }}_${ABI}.tar.gz" -C tmp_openssl_${ABI}
+              
+              # Debug: Show extracted content
+              find tmp_openssl_${ABI} -type d | sort
+              
+              # Copy to organized structure - handle include and lib directly
+              if [ -d "tmp_openssl_${ABI}/include" ]; then
+                cp -r tmp_openssl_${ABI}/include/* "Output/openssl/${ABI}/include/"
+              fi
+              
+              if [ -d "tmp_openssl_${ABI}/lib" ]; then
+                cp -r tmp_openssl_${ABI}/lib/* "Output/openssl/${ABI}/lib/"
+              fi
               
               # Clean up temp directory
-              rm -rf tmp_openssl
+              rm -rf tmp_openssl_${ABI}
+            else
+              echo "⚠️ OpenSSL artifact for ${ABI} not found"
             fi
           done
           
           # Extract cURL artifacts
           for ABI in arm64-v8a armeabi-v7a x86 x86_64 riscv64; do
             if [ -f "artifacts/cURL-${ABI}/curl_${{ needs.get_versions.outputs.curl_version }}_${ABI}.tar.gz" ]; then
-              # Extract include and lib directories
-              mkdir -p tmp_curl
-              tar -xzf "artifacts/cURL-${ABI}/curl_${{ needs.get_versions.outputs.curl_version }}_${ABI}.tar.gz" -C tmp_curl
+              echo "Processing cURL for ${ABI}..."
               
-              # Copy to organized structure
-              cp -r tmp_curl/include/* "Output/curl/${ABI}/include/"
-              cp -r tmp_curl/lib/* "Output/curl/${ABI}/lib/"
+              # Create temp directory for extraction
+              mkdir -p tmp_curl_${ABI}
+              
+              # Extract to temp directory
+              tar -xzf "artifacts/cURL-${ABI}/curl_${{ needs.get_versions.outputs.curl_version }}_${ABI}.tar.gz" -C tmp_curl_${ABI}
+              
+              # Debug: Show extracted content
+              find tmp_curl_${ABI} -type d | sort
+              
+              # Copy to organized structure - handle include and lib directly
+              if [ -d "tmp_curl_${ABI}/include" ]; then
+                cp -r tmp_curl_${ABI}/include/* "Output/curl/${ABI}/include/"
+              fi
+              
+              if [ -d "tmp_curl_${ABI}/lib" ]; then
+                cp -r tmp_curl_${ABI}/lib/* "Output/curl/${ABI}/lib/"
+              fi
               
               # Clean up temp directory
-              rm -rf tmp_curl
+              rm -rf tmp_curl_${ABI}
+            else
+              echo "⚠️ cURL artifact for ${ABI} not found"
             fi
           done
+          
+          # Debug: Show final structure before zipping
+          find Output -type f | sort
           
           # Create the final zip file
           cd Output
