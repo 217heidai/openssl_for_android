@@ -16,6 +16,121 @@ Added `-fPIC` to fix linking error.
 |x86|21|r27c|
 |x86_64|21|r27c|
 
+## Usage
+
+### Directory Structure
+The release contains a single zip file with the following structure:
+```
+Output.zip
+     .
+├── curl
+│   ├── arm64-v8a
+│   │   ├── include
+│   │   └── lib
+│   ├── armeabi-v7a
+│   │   ├── include
+│   │   └── lib
+│   ├── riscv64
+│   │   ├── include
+│   │   └── lib
+│   ├── x86
+│   │   ├── include
+│   │   └── lib
+│   └── x86_64
+│       ├── include
+│       └── lib
+└── openssl
+    ├── arm64-v8a
+    │   ├── include
+    │   └── lib
+    ├── armeabi-v7a
+    │   ├── include
+    │   └── lib
+    ├── riscv64
+    │   ├── include
+    │   └── lib
+    ├── x86
+    │   ├── include
+    │   └── lib
+    └── x86_64
+        ├── include
+        └── lib
+```
+
+### Integration with Android.mk
+
+If you extract the ZIP file into your project's `loginUtils` folder, you can include the libraries in your Android.mk file as follows:
+
+```makefile
+# ─── Prebuilt: libcurl ──────────────────────────────
+include $(CLEAR_VARS)
+LOCAL_MODULE            := libcurl
+LOCAL_SRC_FILES         := loginUtils/curl/$(TARGET_ARCH_ABI)/lib/libcurl.a
+LOCAL_EXPORT_C_INCLUDES := loginUtils/curl/$(TARGET_ARCH_ABI)/include
+include $(PREBUILT_STATIC_LIBRARY)
+
+
+# ─── Prebuilt: libssl ──────────────────────────────
+include $(CLEAR_VARS)
+LOCAL_MODULE            := libssl
+LOCAL_SRC_FILES         := loginUtils/openssl/$(TARGET_ARCH_ABI)/lib/libssl.a
+LOCAL_EXPORT_C_INCLUDES := loginUtils/openssl/$(TARGET_ARCH_ABI)/include
+include $(PREBUILT_STATIC_LIBRARY)
+
+# ─── Prebuilt: libcrypto ──────────────────────────────
+include $(CLEAR_VARS)
+LOCAL_MODULE            := libcrypto
+LOCAL_SRC_FILES         := loginUtils/openssl/$(TARGET_ARCH_ABI)/lib/libcrypto.a
+LOCAL_EXPORT_C_INCLUDES := loginUtils/openssl/$(TARGET_ARCH_ABI)/include
+include $(PREBUILT_STATIC_LIBRARY)
+```
+
+Then link against these libraries in your module:
+
+```makefile
+LOCAL_STATIC_LIBRARIES := \
+    libcrypto \
+    libssl \
+    libcurl
+```
+
+### Integration with CMake
+
+For CMake-based projects, add the following to your CMakeLists.txt:
+
+```cmake
+# Define the library paths based on the ABI
+set(LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/loginUtils)
+
+# Add OpenSSL libraries
+add_library(ssl STATIC IMPORTED)
+set_target_properties(ssl PROPERTIES IMPORTED_LOCATION
+    ${LIBS_DIR}/openssl/${ANDROID_ABI}/lib/libssl.a)
+
+add_library(crypto STATIC IMPORTED)
+set_target_properties(crypto PROPERTIES IMPORTED_LOCATION
+    ${LIBS_DIR}/openssl/${ANDROID_ABI}/lib/libcrypto.a)
+
+# Add cURL library
+add_library(curl STATIC IMPORTED)
+set_target_properties(curl PROPERTIES IMPORTED_LOCATION
+    ${LIBS_DIR}/curl/${ANDROID_ABI}/lib/libcurl.a)
+
+# Include headers
+include_directories(
+    ${LIBS_DIR}/openssl/${ANDROID_ABI}/include
+    ${LIBS_DIR}/curl/${ANDROID_ABI}/include
+)
+
+# Link the libraries to your target
+target_link_libraries(your_target
+    curl
+    ssl
+    crypto
+    # other libraries...
+)
+```
+
 ## ChangeLog
 | Date      | Content                                                              |
 |-----------|----------------------------------------------------------------------|
