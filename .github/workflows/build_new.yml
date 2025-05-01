@@ -102,7 +102,7 @@ jobs:
 
   Compile_cURL_for_Android:
     name: Compile cURL ${{ matrix.ANDROID_TARGET_ABI }}
-    needs: get_versions
+    needs: [get_versions, Compile_OpenSSL_for_Android]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -125,6 +125,7 @@ jobs:
             ANDROID_NDK: r27c
     env:
       CURL_VERSION: ${{ needs.get_versions.outputs.curl_version }}
+      OPENSSL_VERSION: ${{ needs.get_versions.outputs.openssl_version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -144,13 +145,25 @@ jobs:
             https://curl.se/download/curl-${{ env.CURL_VERSION }}.tar.gz
           tar xf curl-${{ env.CURL_VERSION }}.tar.gz
 
-      - name: Build cURL without SSL
+      - name: Download OpenSSL artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: OpenSSL-${{ matrix.ANDROID_TARGET_ABI }}
+          path: ./
+
+      - name: Extract OpenSSL artifact
+        run: |
+          mkdir -p openssl_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}
+          tar -xzf OpenSSL_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz -C openssl_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}
+
+      - name: Build cURL with SSL
         run: |
           bash curl_build.sh \
             ${{ matrix.ANDROID_TARGET_API }} \
             ${{ matrix.ANDROID_TARGET_ABI }} \
             ${{ env.CURL_VERSION }} \
-            ${{ matrix.ANDROID_NDK }}
+            ${{ matrix.ANDROID_NDK }} \
+            ${{ env.OPENSSL_VERSION }}
 
       - name: Package cURL artifact
         run: |
@@ -178,6 +191,51 @@ jobs:
         id: date
         run: |
           echo "release_date=$(date -u +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+          
+      - name: Create organized directory structure
+        run: |
+          # Create the organized directory structure
+          mkdir -p Output/{curl,openssl}/{arm64-v8a,armeabi-v7a,x86,x86_64,riscv64}/{include,lib}
+          
+          # Extract OpenSSL artifacts
+          for ABI in arm64-v8a armeabi-v7a x86 x86_64 riscv64; do
+            if [ -f "artifacts/OpenSSL-${ABI}/OpenSSL_${{ needs.get_versions.outputs.openssl_version }}_${ABI}.tar.gz" ]; then
+              # Extract include and lib directories
+              mkdir -p tmp_openssl
+              tar -xzf "artifacts/OpenSSL-${ABI}/OpenSSL_${{ needs.get_versions.outputs.openssl_version }}_${ABI}.tar.gz" -C tmp_openssl
+              
+              # Copy to organized structure
+              cp -r tmp_openssl/include/* "Output/openssl/${ABI}/include/"
+              cp -r tmp_openssl/lib/* "Output/openssl/${ABI}/lib/"
+              
+              # Clean up temp directory
+              rm -rf tmp_openssl
+            fi
+          done
+          
+          # Extract cURL artifacts
+          for ABI in arm64-v8a armeabi-v7a x86 x86_64 riscv64; do
+            if [ -f "artifacts/cURL-${ABI}/curl_${{ needs.get_versions.outputs.curl_version }}_${ABI}.tar.gz" ]; then
+              # Extract include and lib directories
+              mkdir -p tmp_curl
+              tar -xzf "artifacts/cURL-${ABI}/curl_${{ needs.get_versions.outputs.curl_version }}_${ABI}.tar.gz" -C tmp_curl
+              
+              # Copy to organized structure
+              cp -r tmp_curl/include/* "Output/curl/${ABI}/include/"
+              cp -r tmp_curl/lib/* "Output/curl/${ABI}/lib/"
+              
+              # Clean up temp directory
+              rm -rf tmp_curl
+            fi
+          done
+          
+          # Create the final zip file
+          cd Output
+          zip -r ../Output.zip .
+          cd ..
+          
+          # List contents to verify structure
+          unzip -l Output.zip
 
       - name: Create consolidated release
         uses: softprops/action-gh-release@v1
@@ -186,4 +244,4 @@ jobs:
           name: >-
             OpenSSL ${{ needs.get_versions.outputs.openssl_version }} & cURL ${{ needs.get_versions.outputs.curl_version }} Android Builds
             (Updated ${{ steps.date.outputs.release_date }})
-          files: artifacts/**/*.tar.gz
+          files: Output.zip

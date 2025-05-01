@@ -7,9 +7,25 @@ ANDROID_TARGET_API=$1
 ANDROID_TARGET_ABI=$2
 CURL_VERSION=$3
 ANDROID_NDK_VERSION=$4
+OPENSSL_VERSION=$5
+
+# Check if OpenSSL version is provided
+if [ -z "$OPENSSL_VERSION" ]; then
+    echo "Error: OpenSSL version parameter is required"
+    echo "Usage: $0 <ANDROID_TARGET_API> <ANDROID_TARGET_ABI> <CURL_VERSION> <ANDROID_NDK_VERSION> <OPENSSL_VERSION>"
+    exit 1
+fi
+
 ANDROID_NDK_PATH=${WORK_PATH}/android-ndk-${ANDROID_NDK_VERSION}
 CURL_SRC=${WORK_PATH}/curl-${CURL_VERSION}
 OUTPUT_PATH=${WORK_PATH}/curl_${CURL_VERSION}_${ANDROID_TARGET_ABI}
+OPENSSL_PATH=${WORK_PATH}/openssl_${OPENSSL_VERSION}_${ANDROID_TARGET_ABI}
+
+# Verify OpenSSL path exists
+if [ ! -d "${OPENSSL_PATH}" ]; then
+    echo "Error: OpenSSL directory not found: ${OPENSSL_PATH}"
+    exit 1
+fi
 
 # Detect platform
 if [ "$(uname -s)" == "Darwin" ]; then
@@ -59,17 +75,17 @@ function build() {
     export RANLIB=${TOOLCHAIN}/bin/llvm-ranlib
     export STRIP=${TOOLCHAIN}/bin/llvm-strip
 
-    # Flags
-    export CFLAGS="-fPIC -O2 --sysroot=${TOOLCHAIN}/sysroot"
-    export LDFLAGS="--sysroot=${TOOLCHAIN}/sysroot"
+    # Flags with OpenSSL support
+    export CFLAGS="-fPIC -O2 --sysroot=${TOOLCHAIN}/sysroot -I${OPENSSL_PATH}/include"
+    export LDFLAGS="--sysroot=${TOOLCHAIN}/sysroot -L${OPENSSL_PATH}/lib"
 
-    # Configure without SSL
+    # Configure with SSL support
     ./configure \
         --host=${HOST} \
         --build=$(uname -m)-linux-gnu \
         --disable-shared \
         --enable-static \
-        --without-ssl \
+        --with-openssl=${OPENSSL_PATH} \
         --disable-ldap \
         --disable-ldaps \
         --disable-manual \
@@ -86,7 +102,7 @@ function build() {
     make -j$(${nproc})
     make install
 
-    echo "Build completed! Output at ${OUTPUT_PATH}"
+    echo "Build completed with SSL support! Output at ${OUTPUT_PATH}"
 }
 
 function clean() {
