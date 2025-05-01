@@ -1,82 +1,288 @@
-name: Compile OpenSSL For Android New
+name: Android Build and Release
 
 on:
-  workflow_dispatch:
   push:
     branches: [ master ]
+  workflow_dispatch:
+  schedule:
+    # Run daily at midnight UTC
+    - cron: '0 0 * * *'
 
+# get dynamic versions from upstream
 env:
-  OPENSSL_VERSION: 3.5.0
-  WORK_PATH: /home/runner/work/openssl_for_android/openssl_for_android
-
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
-  Compile_OpenSSL_for_Android:
-    name: Compile OpenSSL
+  get_versions:
+    name: Fetch Latest Versions
     runs-on: ubuntu-latest
+    outputs:
+      openssl_version: ${{ steps.openssl.outputs.openssl_version }}
+      curl_version: ${{ steps.curl.outputs.curl_version }}
+    steps:
+      - name: Install jq and curl
+        run: sudo apt-get update -qq && sudo apt-get install -qq jq curl
 
+      - name: Get latest OpenSSL version
+        id: openssl
+        run: |
+          tag=$(curl -s https://api.github.com/repos/openssl/openssl/releases/latest | jq -r .tag_name)
+          version=${tag#openssl-}
+          version=${version#OpenSSL-}
+          echo "openssl_version=$version" >> $GITHUB_OUTPUT
+
+      - name: Get latest cURL version
+        id: curl
+        run: |
+          tag=curl-$(curl -s https://api.github.com/repos/curl/curl/releases/latest | jq -r .name)
+          version=${tag#curl-}
+          echo "curl_version=$version" >> $GITHUB_OUTPUT
+
+  Compile_OpenSSL_for_Android:
+    name: Compile OpenSSL ${{ matrix.ANDROID_TARGET_ABI }}
+    needs: get_versions
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        info:
-          - '{ "ANDROID_TARGET_ABI": "armeabi-v7a", "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
-          - '{ "ANDROID_TARGET_ABI": "arm64-v8a",   "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
-          - '{ "ANDROID_TARGET_ABI": "riscv64",     "ANDROID_TARGET_API": "35",  "ANDROID_NDK": "r27c"}'
-          - '{ "ANDROID_TARGET_ABI": "x86",         "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
-          - '{ "ANDROID_TARGET_ABI": "x86_64",      "ANDROID_TARGET_API": "21",  "ANDROID_NDK": "r27c"}'
-    
+        include:
+          - ANDROID_TARGET_ABI: armeabi-v7a
+            ANDROID_TARGET_API: "21"
+            ANDROID_NDK: r27c
+          - ANDROID_TARGET_ABI: arm64-v8a
+            ANDROID_TARGET_API: "21"
+            ANDROID_NDK: r27c
+          - ANDROID_TARGET_ABI: riscv64
+            ANDROID_TARGET_API: "35"
+            ANDROID_NDK: r27c
+          - ANDROID_TARGET_ABI: x86
+            ANDROID_TARGET_API: "21"
+            ANDROID_NDK: r27c
+          - ANDROID_TARGET_ABI: x86_64
+            ANDROID_TARGET_API: "21"
+            ANDROID_NDK: r27c
+    env:
+      OPENSSL_VERSION: ${{ needs.get_versions.outputs.openssl_version }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@main
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Install Aria2
-        run: |
-          sudo apt -yqq update
-          sudo apt install -yqq aria2
-      
+      - name: Install prerequisites
+        run: sudo apt-get update -qq && sudo apt-get install -qq aria2
+
       - name: Download Android NDK
-        id: download_ndk
         run: |
-          aria2c -o android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}.zip https://dl.google.com/android/repository/android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}-linux.zip
-          unzip android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}.zip
-          echo "::set-output name=status::success"
+          aria2c -q -o android-ndk-${{ matrix.ANDROID_NDK }}.zip \
+            https://dl.google.com/android/repository/android-ndk-${{ matrix.ANDROID_NDK }}-linux.zip
+          unzip -q android-ndk-${{ matrix.ANDROID_NDK }}.zip
 
       - name: Download OpenSSL
-        id: download_openssl
         run: |
-          aria2c -o openssl-${{env.OPENSSL_VERSION}}.tar.gz https://github.com/openssl/openssl/releases/download/openssl-${{env.OPENSSL_VERSION}}/openssl-${{env.OPENSSL_VERSION}}.tar.gz
-          tar -zxvf openssl-${{env.OPENSSL_VERSION}}.tar.gz
-          echo "::set-output name=status::success"
+          aria2c -q -o openssl-${{ env.OPENSSL_VERSION }}.tar.gz \
+            https://github.com/openssl/openssl/releases/download/openssl-${{ env.OPENSSL_VERSION }}/openssl-${{ env.OPENSSL_VERSION }}.tar.gz
+          tar xf openssl-${{ env.OPENSSL_VERSION }}.tar.gz
 
-      - name: Compile
-        id: compile
-        if: steps.download_ndk.outputs.status == 'success' && steps.download_openssl.outputs.status == 'success' && !cancelled()
+      - name: Build OpenSSL
         run: |
-          bash ./openssl_build_new.sh ${{fromJSON(matrix.info).ANDROID_TARGET_API}} ${{fromJSON(matrix.info).ANDROID_TARGET_ABI}} ${{env.OPENSSL_VERSION}} ${{fromJSON(matrix.info).ANDROID_NDK}}
-          echo "::set-output name=status::success"
+          bash openssl_build_new.sh \
+            ${{ matrix.ANDROID_TARGET_API }} \
+            ${{ matrix.ANDROID_TARGET_ABI }} \
+            ${{ env.OPENSSL_VERSION }} \
+            ${{ matrix.ANDROID_NDK }}
 
-      - name: Generate release tag
-        id: tag
+      - name: Package OpenSSL artifact
         run: |
-          tar -zcvf OpenSSL_${{env.OPENSSL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}.tar.gz openssl_${{env.OPENSSL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}
-          echo "::set-output name=release_tag::${{env.OPENSSL_VERSION}}"
-          echo "::set-output name=status::success"
-      
-      - name: Upload firmware to release
-        if: steps.tag.outputs.status == 'success' && !cancelled()
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          tar -C openssl_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }} \
+            -czf OpenSSL_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz .
+
+      - name: Upload OpenSSL artifact
+        uses: actions/upload-artifact@v4
         with:
-          tag_name: ${{steps.tag.outputs.release_tag}}
-          files: ${{env.WORK_PATH}}/OpenSSL_${{env.OPENSSL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}.tar.gz
+          name: OpenSSL-${{ matrix.ANDROID_TARGET_ABI }}
+          path: OpenSSL_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz
 
+  Compile_cURL_for_Android:
+    name: Compile cURL ${{ matrix.ANDROID_TARGET_ABI }}
+    needs: [get_versions, Compile_OpenSSL_for_Android]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ANDROID_TARGET_ABI: armeabi-v7a
+            ANDROID_TARGET_API: "21"
+            ANDROID_NDK: r27c
+          - ANDROID_TARGET_ABI: arm64-v8a
+            ANDROID_TARGET_API: "21"
+            ANDROID_NDK: r27c
+          - ANDROID_TARGET_ABI: riscv64
+            ANDROID_TARGET_API: "35"
+            ANDROID_NDK: r27c
+          - ANDROID_TARGET_ABI: x86
+            ANDROID_TARGET_API: "21"
+            ANDROID_NDK: r27c
+          - ANDROID_TARGET_ABI: x86_64
+            ANDROID_TARGET_API: "21"
+            ANDROID_NDK: r27c
+    env:
+      CURL_VERSION: ${{ needs.get_versions.outputs.curl_version }}
+      OPENSSL_VERSION: ${{ needs.get_versions.outputs.openssl_version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-  Delete_Workflow:
-    needs: [ Compile_OpenSSL_for_Android ]
+      - name: Install prerequisites
+        run: sudo apt-get update -qq && sudo apt-get install -qq aria2 autoconf automake libtool pkg-config
+
+      - name: Download Android NDK
+        run: |
+          aria2c -q -o android-ndk-${{ matrix.ANDROID_NDK }}.zip \
+            https://dl.google.com/android/repository/android-ndk-${{ matrix.ANDROID_NDK }}-linux.zip
+          unzip -q android-ndk-${{ matrix.ANDROID_NDK }}.zip
+
+      - name: Download cURL
+        run: |
+          aria2c -q -o curl-${{ env.CURL_VERSION }}.tar.gz \
+            https://curl.se/download/curl-${{ env.CURL_VERSION }}.tar.gz
+          tar xf curl-${{ env.CURL_VERSION }}.tar.gz
+
+      - name: Download OpenSSL artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: OpenSSL-${{ matrix.ANDROID_TARGET_ABI }}
+          path: ./
+
+      - name: Extract OpenSSL artifact
+        run: |
+          mkdir -p openssl_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}
+          tar -xzf OpenSSL_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz -C openssl_${{ env.OPENSSL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}
+
+      - name: Build cURL with SSL
+        run: |
+          bash curl_build.sh \
+            ${{ matrix.ANDROID_TARGET_API }} \
+            ${{ matrix.ANDROID_TARGET_ABI }} \
+            ${{ env.CURL_VERSION }} \
+            ${{ matrix.ANDROID_NDK }} \
+            ${{ env.OPENSSL_VERSION }}
+
+      - name: Package cURL artifact
+        run: |
+          tar -C curl_${{ env.CURL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }} \
+            -czf curl_${{ env.CURL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz .
+
+      - name: Upload cURL artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cURL-${{ matrix.ANDROID_TARGET_ABI }}
+          path: curl_${{ env.CURL_VERSION }}_${{ matrix.ANDROID_TARGET_ABI }}.tar.gz
+
+  Publish_Release:
+    needs:
+      - Compile_OpenSSL_for_Android
+      - Compile_cURL_for_Android
     runs-on: ubuntu-latest
     steps:
-      - name: Delete workflow runs
-        uses: Mattraks/delete-workflow-runs@main
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
         with:
-          retain_days: 0
-          keep_minimum_runs: 8
+          path: artifacts
+
+      - name: Set release date
+        id: date
+        run: |
+          echo "release_date=$(date -u +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+          
+      - name: Create organized directory structure
+        run: |
+          # Create the organized directory structure
+          mkdir -p Output/{curl,openssl}/{arm64-v8a,armeabi-v7a,x86,x86_64,riscv64}/{include,lib}
+          
+          # Debug: List downloaded artifacts
+          find artifacts -type f | sort
+          
+          # Process OpenSSL artifacts
+          for ABI in arm64-v8a armeabi-v7a x86 x86_64 riscv64; do
+            # Find the OpenSSL artifact for this ABI
+            OPENSSL_ARTIFACT=$(find artifacts -name "OpenSSL_*_${ABI}.tar.gz" | head -n 1)
+            
+            if [ -n "$OPENSSL_ARTIFACT" ] && [ -f "$OPENSSL_ARTIFACT" ]; then
+              echo "Processing OpenSSL for ${ABI} from $OPENSSL_ARTIFACT"
+              
+              # Create temp directory for extraction
+              mkdir -p tmp_openssl_${ABI}
+              
+              # Extract to temp directory
+              tar -xzf "$OPENSSL_ARTIFACT" -C tmp_openssl_${ABI}
+              
+              # Debug: Show extracted content
+              find tmp_openssl_${ABI} -type d | sort
+              
+              # Copy to organized structure - handle include and lib directly
+              if [ -d "tmp_openssl_${ABI}/include" ]; then
+                cp -r tmp_openssl_${ABI}/include/* "Output/openssl/${ABI}/include/" || true
+              fi
+              
+              if [ -d "tmp_openssl_${ABI}/lib" ]; then
+                cp -r tmp_openssl_${ABI}/lib/* "Output/openssl/${ABI}/lib/" || true
+              fi
+              
+              # Clean up temp directory
+              rm -rf tmp_openssl_${ABI}
+            else
+              echo "⚠️ OpenSSL artifact for ${ABI} not found"
+            fi
+          done
+          
+          # Process cURL artifacts
+          for ABI in arm64-v8a armeabi-v7a x86 x86_64 riscv64; do
+            # Find the curl artifact for this ABI
+            CURL_ARTIFACT=$(find artifacts -name "curl_*_${ABI}.tar.gz" | head -n 1)
+            
+            if [ -n "$CURL_ARTIFACT" ] && [ -f "$CURL_ARTIFACT" ]; then
+              echo "Processing cURL for ${ABI} from $CURL_ARTIFACT"
+              
+              # Create temp directory for extraction
+              mkdir -p tmp_curl_${ABI}
+              
+              # Extract to temp directory
+              tar -xzf "$CURL_ARTIFACT" -C tmp_curl_${ABI}
+              
+              # Debug: Show extracted content
+              find tmp_curl_${ABI} -type d | sort
+              
+              # Copy to organized structure - handle include and lib directly
+              if [ -d "tmp_curl_${ABI}/include" ]; then
+                cp -r tmp_curl_${ABI}/include/* "Output/curl/${ABI}/include/" || true
+              fi
+              
+              if [ -d "tmp_curl_${ABI}/lib" ]; then
+                cp -r tmp_curl_${ABI}/lib/* "Output/curl/${ABI}/lib/" || true
+              fi
+              
+              # Clean up temp directory
+              rm -rf tmp_curl_${ABI}
+            else
+              echo "⚠️ cURL artifact for ${ABI} not found"
+            fi
+          done
+          
+          # Debug: Show final structure before zipping
+          echo "Final directory structure:"
+          find Output -type f | sort
+          
+          # Create the final zip file
+          cd Output
+          zip -r ../Output.zip .
+          cd ..
+          
+          # List contents to verify structure
+          unzip -l Output.zip
+
+      - name: Create consolidated release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: release-openssl${{ needs.get_versions.outputs.openssl_version }}-curl${{ needs.get_versions.outputs.curl_version }}
+          name: >-
+            OpenSSL ${{ needs.get_versions.outputs.openssl_version }} & cURL ${{ needs.get_versions.outputs.curl_version }} Android Builds
+            (Updated ${{ steps.date.outputs.release_date }})
+          files: Output.zip
