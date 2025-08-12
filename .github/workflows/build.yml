@@ -6,7 +6,7 @@ on:
     branches: [ master ]
 
 env:
-  OPENSSL_VERSION: 3.5.1
+  OPENSSL_VERSION: 3.5.2
   WORK_PATH: /home/runner/work/openssl_for_android/openssl_for_android
 
 jobs:
