@@ -8,13 +8,13 @@ Added `-fPIC` to fix linking error.
 |ABI|API|NDK|
 |:-|:-:|:-:|
 |armeabi|21|r16b|
-|armeabi-v7a|21|r27c|
-|arm64-v8a|21|r27c|
+|armeabi-v7a|21|r27d|
+|arm64-v8a|21|r27d|
 |mips|21|r16b|
 |mips64|21|r16b|
-|riscv64|35|r27c|
-|x86|21|r27c|
-|x86_64|21|r27c|
+|riscv64|35|r27d|
+|x86|21|r27d|
+|x86_64|21|r27d|
 
 ## ChangeLog
 | Date      | Content                                                              |
