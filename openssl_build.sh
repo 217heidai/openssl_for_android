@@ -1,19 +1,13 @@
 #!/bin/bash
+# build_openssl.sh, ABr
+# Originally forked from 217heidai/openssl_for_android
 
-# identify which openssl version we require
-OPENSSL_VERSION="${OPENSSL_VERSION:-3.2.1}"
-
-# ABr: modifications
-WORK_PATH=$(cd "$(dirname "$0")";pwd)
-ANDROID_NDK_PATH=''
-OPENSSL_SOURCES_PATH=${WORK_PATH}/openssl-$OPENSSL_VERSION
-ANDROID_TARGET_API=$1
-ANDROID_TARGET_ABI=$2
-OUTPUT_PATH=${WORK_PATH}/openssl_${OPENSSL_VERSION}_${ANDROID_TARGET_ABI}
-
-# ABr: caller may pass in target ABI and API
+# parameters from caller
 ANDROID_TARGET_ABI="${1:-arm64-v8a}" ; shift
 ANDROID_TARGET_API="${1:-default}" ; shift
+
+# identify which openssl version we require
+OPENSSL_VERSION="${OPENSSL_VERSION:-3.5.2}"
 
 # special surprise: if ANDROID_TARGET_API is 'clean' then clean up...
 if [ x"$ANDROID_TARGET_API" = xclean ] ; then
@@ -48,6 +42,7 @@ fi
 required_ndk_bin_folder="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/$ANDROID_NDK_LOCAL_PLATFORM"
 [ ! -d "$required_ndk_bin_folder" ] && echo "Cannot locate required NDK '$required_ndk_bin_folder'" && exit 1
 
+# ensure that openssl is pulled
 function pull_openssl {
   # copy from web
   if [ ! -f "${WORK_PATH}/openssl-${OPENSSL_VERSION}.tar.gz" ]; then
@@ -74,15 +69,18 @@ function pull_openssl {
   return 0
 }
 
+# build the library for the given build
 function build_library {
   local l_rc=0
 
   echo "mkdir -p '${OUTPUT_PATH}'"
   mkdir -p "${OUTPUT_PATH}"
+  echo ''
 
-  echo "make && make install"
-  make && make install
+  echo "make -j'$(nproc)' && make install_sw"
+  make -j"$(nproc)" && make install_sw
   l_rc=$? ; [ $l_rc -ne 0 ] && return $l_rc
+  echo ''
 
   echo 'Cleaning up build...'
   rm -rf ${OPENSSL_TMP_FOLDER}
@@ -135,14 +133,12 @@ echo ''
 # by default __ANDROID_API__ is defined and we get warnings if we redefine
 the_tmp="/tmp/openssl_build_$$.sh"
 echo "#!$SHELL" >"$the_tmp"
-# ABr: solve "relocation R_AARCH64_ADR_PREL_PG_HI21 cannot be used against symbol 'bio_type_lock'; recompile with -fPIC"
-echo 'export CFLAGS=-fPIC' >>"$the_tmp"
 echo "./Configure $openssl_platform \\" >>"$the_tmp"
 if [ x"$ANDROID_TARGET_API" != xdefault ] ; then
   # see https://github.com/openssl/openssl/issues/18561#issuecomment-1155298077
   echo "  -U__ANDROID_API__ -D__ANDROID_API__=${ANDROID_TARGET_API} \\" >>"$the_tmp"
 fi
-echo "  -static no-asm no-shared no-tests --prefix='${OUTPUT_PATH}'" >>"$the_tmp"
+echo "  -fPIC no-asm no-shared no-module no-tests --prefix='${OUTPUT_PATH}'" >>"$the_tmp"
 echo 'Running configure...'
 chmod +x "$the_tmp"
 cat "$the_tmp"
