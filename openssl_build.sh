@@ -51,8 +51,11 @@ function pull_openssl {
     curl -fL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o "${WORK_PATH}/openssl-${OPENSSL_VERSION}.tar.gz"
     curl -fL "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz.sha256" -o "${WORK_PATH}/openssl-${OPENSSL_VERSION}.tar.gz.sha256"
     DIGEST=$( cat ${WORK_PATH}/openssl-${OPENSSL_VERSION}.tar.gz.sha256 )
+    DIGEST="`echo "$DIGEST" | awk '{print $1}'`"
 
-    if [[ "$(shasum -a 256 "openssl-${OPENSSL_VERSION}.tar.gz" | awk '{ print " "$1}')" != "${DIGEST}" ]]
+    CALCULATED_DIGEST=$(shasum -a 256 "openssl-${OPENSSL_VERSION}.tar.gz")
+    CALCULATED_DIGEST="`echo "$CALCULATED_DIGEST" | awk '{print $1}'`"
+    if [[ "${CALCULATED_DIGEST}" != "${DIGEST}" ]]
     then
       echo "openssl-${OPENSSL_VERSION}.tar.gz: checksum mismatch"
       exit 1
