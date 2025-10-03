@@ -8,6 +8,9 @@ on:
   push:
     branches: [ master ]
 
+  # 手動実行のトリガーを追加
+  workflow_dispatch:
+
 env:
   ANDROID_ABI: armeabi-v7a
   OPENSSL_VERSION: 1_1_1i
