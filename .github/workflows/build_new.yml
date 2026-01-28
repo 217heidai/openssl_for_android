@@ -34,42 +34,42 @@ jobs:
           sudo apt install -yqq aria2
       
       - name: Download Android NDK
-        id: download_ndk
         run: |
           aria2c -o android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}.zip https://dl.google.com/android/repository/android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}-linux.zip
           unzip android-ndk-${{fromJSON(matrix.info).ANDROID_NDK}}.zip
-          echo "::set-output name=status::success"
 
       - name: Download OpenSSL
-        id: download_openssl
         run: |
           aria2c -o openssl-${{env.OPENSSL_VERSION}}.tar.gz https://github.com/openssl/openssl/releases/download/openssl-${{env.OPENSSL_VERSION}}/openssl-${{env.OPENSSL_VERSION}}.tar.gz
           tar -zxvf openssl-${{env.OPENSSL_VERSION}}.tar.gz
-          echo "::set-output name=status::success"
 
       - name: Compile
         id: compile
-        if: steps.download_ndk.outputs.status == 'success' && steps.download_openssl.outputs.status == 'success' && !cancelled()
         run: |
           bash ./openssl_build_new.sh ${{fromJSON(matrix.info).ANDROID_TARGET_API}} ${{fromJSON(matrix.info).ANDROID_TARGET_ABI}} ${{env.OPENSSL_VERSION}} ${{fromJSON(matrix.info).ANDROID_NDK}}
-          echo "::set-output name=status::success"
-
-      - name: Generate release tag
-        id: tag
-        run: |
           tar -zcvf OpenSSL_${{env.OPENSSL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}.tar.gz openssl_${{env.OPENSSL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}
-          echo "::set-output name=release_tag::${{env.OPENSSL_VERSION}}"
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
       
       - name: Upload firmware to release
-        if: steps.tag.outputs.status == 'success' && !cancelled()
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        if: steps.compile.outputs.status == 'success' && !cancelled()
+        uses: svenstaro/upload-release-action@v2
         with:
-          tag_name: ${{steps.tag.outputs.release_tag}}
-          files: ${{env.WORK_PATH}}/OpenSSL_${{env.OPENSSL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}.tar.gz
-
+          repo_token: ${{secrets.GITHUB_TOKEN}}
+          file_glob: true
+          file: ${{env.WORK_PATH}}/OpenSSL_${{env.OPENSSL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}.tar.gz
+          tag: ${{env.OPENSSL_VERSION}}
+          overwrite: true
+          body: |
+            |ABI|API|NDK|
+            |:-|:-:|:-:|
+            |armeabi|21|r16b|
+            |armeabi-v7a|21|r27d|
+            |arm64-v8a|21|r27d|
+            |mips|21|r16b|
+            |mips64|21|r16b|
+            |riscv64|35|r27d|
+            |x86|21|r27d|
+            |x86_64|21|r27d|
 
   Delete_Workflow:
     needs: [ Compile_OpenSSL_for_Android ]
