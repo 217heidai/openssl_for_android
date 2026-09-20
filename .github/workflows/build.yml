@@ -58,6 +58,7 @@ jobs:
           file_glob: true
           file: ${{env.WORK_PATH}}/OpenSSL_${{env.OPENSSL_VERSION}}_${{fromJSON(matrix.info).ANDROID_TARGET_ABI}}.tar.gz
           tag: ${{env.OPENSSL_VERSION}}
+          release_name: ${{env.OPENSSL_VERSION}}
           overwrite: true
           body: |
             |ABI|API|NDK|
