@@ -9,13 +9,13 @@ Automatically compile static OpenSSL library for Android by Github Actions.
 | ABI | API | NDK |
 | :-: | :-: | :-: |
 | armeabi | 21 | r16b |
-| armeabi-v7a | 21 | r27d |
-| arm64-v8a | 21 | r27d |
+| armeabi-v7a | 21 | r30 |
+| arm64-v8a | 21 | r30 |
 | mips | 21 | r16b |
 | mips64 | 21 | r16b |
-| riscv64 | 35 | r27d |
-| x86 | 21 | r27d |
-| x86_64 | 21 | r27d |
+| riscv64 | 35 | r30 |
+| x86 | 21 | r30 |
+| x86_64 | 21 | r30 |
 
 ## ChangeLog
 
