@@ -21,6 +21,7 @@ Automatically compile static OpenSSL library for Android by Github Actions.
 
 | Date | Content |
 | :-: | :-: |
+| 2026.10.26 | OpenSSL 4.1.0 |
 | 2026.09.30 | OpenSSL 4.0.3 |
 | 2026.08.26 | OpenSSL 4.0.2 |
 | 2026.06.10 | OpenSSL 4.0.1 |
